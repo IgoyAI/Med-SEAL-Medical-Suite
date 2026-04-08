@@ -39,63 +39,20 @@ Med-SEAL Medical Suite is a production-grade healthcare platform integrating ele
 
 ## Architecture
 
+<p align="center">
+  <img src="docs/architecture.png" alt="Med-SEAL Architecture Diagram" width="100%" />
+</p>
+
+<details>
+<summary>PlantUML source</summary>
+
+See [`docs/architecture.puml`](docs/architecture.puml) to regenerate:
+
+```bash
+plantuml -tpng -o . docs/architecture.puml
 ```
-                            ┌──────────────────────────────────┐
-                            │        Cloudflare DNS/CDN        │
-                            └──────────────┬───────────────────┘
-                                           │
-                            ┌──────────────▼───────────────────┐
-                            │    Nginx Gateway (TLS + Routing)  │
-                            │         gateway/nginx.conf        │
-                            └───┬───┬───┬───┬───┬───┐
-                                │   │   │   │   │   │
-            ┌───────────────────┘   │   │   │   │   └───────────────────┐
-            ▼                       ▼   │   ▼   │                       ▼
-   ┌─────────────┐         ┌──────────┐ │       │              ┌─────────────┐
-   │   OpenEMR   │         │ Medplum  │ │       │              │  Medplum    │
-   │  (EMR/EHR)  │         │  FHIR R4 │ │       │              │    App      │
-   │  emr.med-   │         │  fhir.   │ │       │              │ medplum.    │
-   │  seal.org   │         │  med-    │ │       │              │ med-seal.   │
-   │             │         │  seal.org│ │       │              │ org         │
-   └──────┬──────┘         └────┬─────┘ │       │              └─────────────┘
-          │                      │       │       │
-          │               ┌──────▼───────▼───────▼───────┐
-          │               │        AI Service Layer          │
-          │               │                                  │
-          │               │  ┌────────────┐  ┌────────────┐  │
-          │               │  │ AI Service │  │    CDSS    │  │
-          │               │  │ api.med-   │  │ cdss.med-  │  │
-          │               │  │ seal.org   │  │ seal.org   │  │
-          │               │  └──────┬─────┘  └────────────┘  │
-          │               │         │                        │
-          │               │  ┌──────▼──────────────────────┐ │
-          │               │  │     AI Frontend (ClinOS)    │ │
-          │               │  │     app.med-seal.org        │ │
-          │               │  └─────────────────────────────┘ │
-          │               │                                  │
-          │               │  ┌─────────────────────────────┐ │
-          │               │  │   SSO-v2 (Authentication)   │ │
-          │               │  │   Carbon Design + React     │ │
-          │               │  └─────────────────────────────┘ │
-          │               └──────────────────────────────────┘
-          │
-   ┌──────▼──────────────────────────────────────────────────┐
-   │                   Med-SEAL Agent                        │
-   │              (Multi-Agent AI System)                    │
-   │   LangGraph + SEA-LION v4-32B + Med-SEAL V1 + Qwen     │
-   │                                                        │
-   │  A1 Companion  │ A2 Clinical │ A3 Nudge │ A4 Lifestyle │
-   │  A5 Insight    │ A6 Doctor CDS │ Pre-Visit Summary     │
-   │                                                        │
-   │  Safety: Rule-based Guards + SEA-Guard LLM             │
-   └────────────────────────────────────────────────────────┘
-          │
-   ┌──────▼──────────────────────────────────────────────────┐
-   │                   Data Layer                            │
-   │  PostgreSQL 16  │  MariaDB 10.11  │  Redis 7           │
-   │  (Medplum, SSO) │  (OpenEMR)      │  (Cache)           │
-   └────────────────────────────────────────────────────────┘
-```
+
+</details>
 
 ---
 
