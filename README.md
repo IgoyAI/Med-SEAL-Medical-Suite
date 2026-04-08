@@ -2,7 +2,7 @@
   <img src="https://img.shields.io/badge/HL7_FHIR-R4-red?style=flat-square" alt="FHIR R4" />
   <img src="https://img.shields.io/badge/SGDS-Compliant-blueviolet?style=flat-square" alt="SGDS" />
   <img src="https://img.shields.io/badge/WCAG-2.1_AA-green?style=flat-square" alt="WCAG 2.1 AA" />
-  <img src="https://img.shields.io/badge/Docker_Compose-13+_services-blue?style=flat-square" alt="Docker" />
+  <img src="https://img.shields.io/badge/Docker_Compose-10+_services-blue?style=flat-square" alt="Docker" />
   <img src="https://img.shields.io/badge/License-Proprietary-lightgrey?style=flat-square" alt="License" />
 </p>
 
@@ -10,7 +10,7 @@
 
 **Enterprise Healthcare Platform for Singapore** — Clinical Systems, AI-Powered Decision Support & Interoperable Health Data Exchange
 
-Med-SEAL Medical Suite is a production-grade healthcare platform integrating electronic medical records, FHIR R4 interoperability, medical imaging, multi-agent AI decision support, and single sign-on authentication. Designed and built for Singapore's healthcare ecosystem in compliance with SGDS, DSS, and WCAG 2.1 AA standards.
+Med-SEAL Medical Suite is a production-grade healthcare platform integrating electronic medical records, FHIR R4 interoperability, multi-agent AI decision support, and single sign-on authentication. Designed and built for Singapore's healthcare ecosystem in compliance with SGDS, DSS, and WCAG 2.1 AA standards.
 
 > A collaboration between the **National University of Singapore (NUS)**, **Synapxe** (Singapore's national HealthTech agency), and **IMDA** (Infocomm Media Development Authority).
 
@@ -47,20 +47,19 @@ Med-SEAL Medical Suite is a production-grade healthcare platform integrating ele
                             ┌──────────────▼───────────────────┐
                             │    Nginx Gateway (TLS + Routing)  │
                             │         gateway/nginx.conf        │
-                            └──┬───┬───┬───┬───┬───┬───┬───┬──┘
-                               │   │   │   │   │   │   │   │
-            ┌──────────────────┘   │   │   │   │   │   │   └──────────────────┐
-            ▼                      ▼   │   ▼   │   ▼   │                      ▼
-   ┌─────────────┐       ┌──────────┐  │ ┌────────┐  │ ┌──────────┐  ┌─────────────┐
-   │   OpenEMR   │       │ Medplum  │  │ │Orthanc │  │ │   OHIF   │  │  Medplum    │
-   │  (EMR/EHR)  │       │  FHIR R4 │  │ │ (PACS) │  │ │ Viewer   │  │    App      │
-   │  emr.med-   │       │  fhir.   │  │ │ pacs.  │  │ │ viewer.  │  │ medplum.    │
-   │  seal.org   │       │  med-    │  │ │ med-   │  │ │ med-     │  │ med-seal.   │
-   │             │       │  seal.org│  │ │ seal.  │  │ │ seal.org │  │ org         │
-   └──────┬──────┘       └────┬─────┘  │ │ org    │  │ └──────────┘  └─────────────┘
-          │                    │        │ └────────┘  │
-          │                    │        │             │
-          │               ┌────▼────────▼─────────────▼──────┐
+                            └───┬───┬───┬───┬───┬───┐
+                                │   │   │   │   │   │
+            ┌───────────────────┘   │   │   │   │   └───────────────────┐
+            ▼                       ▼   │   ▼   │                       ▼
+   ┌─────────────┐         ┌──────────┐ │       │              ┌─────────────┐
+   │   OpenEMR   │         │ Medplum  │ │       │              │  Medplum    │
+   │  (EMR/EHR)  │         │  FHIR R4 │ │       │              │    App      │
+   │  emr.med-   │         │  fhir.   │ │       │              │ medplum.    │
+   │  seal.org   │         │  med-    │ │       │              │ med-seal.   │
+   │             │         │  seal.org│ │       │              │ org         │
+   └──────┬──────┘         └────┬─────┘ │       │              └─────────────┘
+          │                      │       │       │
+          │               ┌──────▼───────▼───────▼───────┐
           │               │        AI Service Layer          │
           │               │                                  │
           │               │  ┌────────────┐  ┌────────────┐  │
@@ -83,7 +82,7 @@ Med-SEAL Medical Suite is a production-grade healthcare platform integrating ele
    ┌──────▼──────────────────────────────────────────────────┐
    │                   Med-SEAL Agent                        │
    │              (Multi-Agent AI System)                    │
-   │   LangGraph + SEA-LION v4-32B + Azure OpenAI           │
+   │   LangGraph + SEA-LION v4-32B + Med-SEAL V1 + Qwen     │
    │                                                        │
    │  A1 Companion  │ A2 Clinical │ A3 Nudge │ A4 Lifestyle │
    │  A5 Insight    │ A6 Doctor CDS │ Pre-Visit Summary     │
@@ -108,15 +107,13 @@ Med-SEAL Medical Suite is a production-grade healthcare platform integrating ele
 |-----------|--------|-------------|
 | **OpenEMR** | `emr.med-seal.org` | Electronic Medical Records — patient demographics, encounters, prescriptions, clinical notes |
 | **Medplum FHIR R4** | `fhir.med-seal.org` | HL7 FHIR R4 server — interoperable health data exchange, patient resources, observations |
-| **Orthanc** | `pacs.med-seal.org` | DICOM/PACS server — medical imaging storage and retrieval |
-| **OHIF Viewer** | `viewer.med-seal.org` | Web-based radiology DICOM viewer — diagnostic imaging |
 
 ### AI & Clinical Decision Support
 
 | Component | Domain | Description |
 |-----------|--------|-------------|
 | **Med-SEAL Agent** | External service | Multi-agent AI system — 7 specialized agents for patient and clinician support |
-| **AI Service** | `api.med-seal.org` | Express.js backend — clinical chat, radiology reports, CDS alerts, ambient summaries |
+| **AI Service** | `api.med-seal.org` | Express.js backend — clinical chat, CDS alerts, ambient summaries |
 | **CDSS** | `cdss.med-seal.org` | Clinical Decision Support System — real-time clinical alerts and recommendations |
 | **AI Frontend (ClinOS)** | `app.med-seal.org` | Clinician dashboard — React + Carbon Design System (IBM) |
 
@@ -132,7 +129,7 @@ Med-SEAL Medical Suite is a production-grade healthcare platform integrating ele
 | Component | Description |
 |-----------|-------------|
 | **Nginx Gateway** | Reverse proxy — TLS termination, domain routing, CORS, SSE pass-through |
-| **Docker Compose** | Full stack orchestration — 13+ containers with health checks and dependencies |
+| **Docker Compose** | Full stack orchestration — 10+ containers with health checks and dependencies |
 | **Data Sync** | Bi-directional synchronization between OpenEMR, Medplum FHIR, and SSO databases |
 | **Huawei Cloud CCE** | Production deployment on Kubernetes (Cloud Container Engine, ap-southeast-1) |
 
@@ -140,18 +137,18 @@ Med-SEAL Medical Suite is a production-grade healthcare platform integrating ele
 
 ## Med-SEAL Agent (Multi-Agent AI)
 
-A multi-agent AI system built with LangGraph, powered by SEA-LION v4-32B (IMDA) and Azure OpenAI, designed for 24/7 patient support and clinician decision assistance.
+A multi-agent AI system built with LangGraph, powered by SEA-LION v4-32B (IMDA), Med-SEAL V1, and Qwen 3.6 Plus, designed for 24/7 patient support and clinician decision assistance.
 
 ### Agent Architecture
 
 | Agent | Role | Model | Description |
 |-------|------|-------|-------------|
 | **A1 — Companion** | Patient Hub | SEA-LION v4-32B | Conversational interface, intent routing, multi-language (EN/ZH/MS/TA) |
-| **A2 — Clinical Reasoning** | Medical Q&A | Qwen3-VL-8B | Evidence-based clinical answers from EHR data |
+| **A2 — Clinical Reasoning** | Medical Q&A | Med-SEAL V1 | Evidence-based clinical answers from EHR data |
 | **A3 — Nudge** | Reminders | SEA-LION v4-32B | Medication adherence alerts, appointment nudges |
 | **A4 — Lifestyle** | Wellness | SEA-LION v4-32B | Culturally-appropriate dietary coaching (Halal, Chinese, Indian) |
 | **A5 — Insight Synthesis** | Summaries | SEA-LION v4-32B | Pre-visit summaries aggregated from FHIR data |
-| **A6 — Doctor CDS** | Clinician | Azure OpenAI | Clinical decision support for healthcare providers |
+| **A6 — Doctor CDS** | Clinician | Qwen 3.6 Plus | Clinical decision support for healthcare providers |
 | **Pre-Visit Summary** | Aggregation | None (FHIR only) | Pure FHIR data aggregation — no LLM, deterministic |
 
 ### Safety Guards
@@ -176,8 +173,7 @@ See [`Med-SEAL-Agent/`](Med-SEAL-Agent/) for full agent specifications, API docu
 | **Frontend** | React 18, Vite 5, Carbon Design System (IBM), SCSS |
 | **Database** | PostgreSQL 16, MariaDB 10.11, Redis 7 |
 | **FHIR** | Medplum R4 Server v5.1.6 |
-| **DICOM** | Orthanc (PACS) + OHIF Viewer v3.9.2 |
-| **AI/LLM** | SEA-LION v4-32B (IMDA), Azure OpenAI, Google Gemini 2.5 Flash, Qwen3-VL-8B |
+| **AI/LLM** | SEA-LION v4-32B (IMDA), Med-SEAL V1, Qwen 3.6 Plus, Google Gemini 2.5 Flash |
 | **Orchestration** | Docker Compose, Nginx, LangGraph, LangFuse (observability) |
 | **Authentication** | 2FA (TOTP), SSO, Bcrypt, Singpass (Singapore National Digital Identity) |
 | **Cloud** | Huawei Cloud CCE (Kubernetes), Cloudflare DNS/CDN |
@@ -248,8 +244,6 @@ Copy `.env.example` to `.env` and configure:
 | `OPENEMR_DB_PASSWORD` | MariaDB user password for OpenEMR | Yes |
 | `OPENEMR_ADMIN_PASSWORD` | OpenEMR admin UI password | Yes |
 | `SSO_DB_PASSWORD` | PostgreSQL password for SSO database | Yes |
-| `ORTHANC_PASSWORD` | Orthanc PACS admin password | Yes |
-
 All passwords default to `changeme` if not set. **Change these before any non-local deployment.**
 
 ---
@@ -266,9 +260,6 @@ All passwords default to `changeme` if not set. **Change these before any non-lo
 | OpenEMR | http://localhost:8081 | 8081 |
 | Medplum FHIR R4 | http://localhost:8103 | 8103 |
 | Medplum App | http://localhost:3000 | 3000 |
-| OHIF Viewer | http://localhost:3003 | 3003 |
-| Orthanc (PACS) | http://localhost:8042 | 8042 |
-| Orthanc DICOM | dicom://localhost:4242 | 4242 |
 
 ### Production (med-seal.org)
 
@@ -280,8 +271,6 @@ All passwords default to `changeme` if not set. **Change these before any non-lo
 | OpenEMR | https://emr.med-seal.org |
 | FHIR R4 | https://fhir.med-seal.org/fhir/R4 |
 | Medplum App | https://medplum.med-seal.org |
-| PACS | https://pacs.med-seal.org |
-| DICOM Viewer | https://viewer.med-seal.org |
 
 ---
 
@@ -297,7 +286,6 @@ All passwords default to `changeme` if not set. **Change these before any non-lo
 | `GET` | `/api/chat/stream` | SSE streaming chat |
 | `GET` | `/api/patients` | Patient list (from FHIR) |
 | `GET` | `/api/patients/:id` | Patient details |
-| `GET` | `/api/radiology/report` | AI radiology report generation |
 | `POST` | `/api/cds/alerts` | Clinical Decision Support alerts |
 | `POST` | `/api/ambient/summary` | Ambient clinical summary |
 | `GET` | `/api/audit` | Audit log retrieval |
@@ -322,7 +310,7 @@ See [`Med-SEAL-Agent/AGENT_API.md`](Med-SEAL-Agent/AGENT_API.md) for full reques
 ### Docker Compose (Development / Staging)
 
 ```bash
-docker compose up -d          # Start all 13+ services
+docker compose up -d          # Start all services
 docker compose ps             # Check status
 docker compose logs -f ai-service  # Follow logs
 docker compose down           # Stop all
@@ -367,7 +355,6 @@ See [`huawei/README.md`](huawei/README.md) for detailed cloud deployment instruc
 | **WCAG 2.1 AA** | Web accessibility | Compliant (contrast, keyboard nav, screen reader) |
 | **DSS** | Digital Service Standards (Singapore) | Compliant |
 | **USCDI v3** | US Core Data for Interoperability | Supported |
-| **DICOM** | Medical imaging standard | Implemented (Orthanc + OHIF) |
 | **ICD-10** | Clinical coding | Supported via OpenEMR |
 
 ---
@@ -391,8 +378,6 @@ Med-SEAL-Medical-Suite/
 ├── gateway/                 # Nginx reverse proxy + TLS
 ├── medplum/                 # Medplum FHIR server configuration
 ├── openemr/                 # OpenEMR configuration + custom assets
-├── orthanc/                 # Orthanc PACS configuration
-├── ohif/                    # OHIF DICOM Viewer configuration
 ├── huawei/                  # Huawei Cloud CCE deployment scripts
 │   └── k8s/                 # Kubernetes manifests
 ├── scripts/                 # Data seeding, FHIR sync, utilities

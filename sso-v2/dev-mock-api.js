@@ -286,8 +286,6 @@ export function mockApiPlugin() {
           return json(res, 200, {
             openemr: 'up',
             medplum: 'up',
-            orthanc: 'up',
-            ohif: 'up',
           });
         }
 

@@ -90,8 +90,6 @@ http://emr.medseal.<ELB_IP>.nip.io     → OpenEMR
 http://fhir.medseal.<ELB_IP>.nip.io    → Medplum API
 http://medplum.medseal.<ELB_IP>.nip.io → Medplum App
 http://api.medseal.<ELB_IP>.nip.io     → AI Service API
-http://pacs.medseal.<ELB_IP>.nip.io    → Orthanc PACS
-http://viewer.medseal.<ELB_IP>.nip.io  → OHIF Viewer
 ```
 
 ### Step 7: Update Domain References

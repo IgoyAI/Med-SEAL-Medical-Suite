@@ -76,7 +76,7 @@ export default function LoginPage({ onLogin }: Props) {
                 </div>
                 <div className="login-aside__headline">
                     <h1>Secure access to your <strong>clinical suite</strong></h1>
-                    <p>Single sign-on for OpenEMR, Medplum FHIR, OHIF Viewer, and AI services. One identity, every application.</p>
+                    <p>Single sign-on for OpenEMR, Medplum FHIR, and AI services. One identity, every application.</p>
                 </div>
                 <div className="login-aside__features">
                     <div className="login-feature">

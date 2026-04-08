@@ -8,8 +8,6 @@ type Status = 'operational' | 'down' | 'checking';
 const STATUS_SERVICES = [
     { id: 'openemr', name: 'OpenEMR', desc: 'Clinical EMR', color: '#297cbb', bgColor: '#e8f4fd' },
     { id: 'medplum', name: 'Medplum FHIR', desc: 'FHIR R4 Server', color: '#30a46c', bgColor: '#eff8f4' },
-    { id: 'orthanc', name: 'Orthanc PACS', desc: 'DICOM Storage', color: '#ca8a04', bgColor: '#fef9c3' },
-    { id: 'ohif', name: 'OHIF Viewer', desc: 'Radiology Viewer', color: '#5b21b6', bgColor: '#ede9fe' },
     { id: 'langfuse', name: 'Langfuse', desc: 'LLM Observability', color: '#e11d48', bgColor: '#fef2f2' },
 ];
 

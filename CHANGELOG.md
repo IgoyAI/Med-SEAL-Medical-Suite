@@ -11,19 +11,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **Med-SEAL Agent** — 7 specialized AI agents (Companion, Clinical Reasoning, Nudge, Lifestyle, Insight Synthesis, Doctor CDS, Pre-Visit Summary) powered by SEA-LION v4-32B and Azure OpenAI
+- **Med-SEAL Agent** — 7 specialized AI agents (Companion, Clinical Reasoning, Nudge, Lifestyle, Insight Synthesis, Doctor CDS, Pre-Visit Summary) powered by SEA-LION v4-32B, Med-SEAL V1, and Qwen 3.6 Plus
 - **CDSS** — Clinical Decision Support System with real-time alerts and recommendations
 - **SSO-v2** — Single Sign-On frontend with 2FA (TOTP), Singpass integration, and Carbon Design System UI
-- **AI Service** — Express.js backend providing clinical chat, radiology reports, CDS alerts, ambient summaries, and audit logging
+- **AI Service** — Express.js backend providing clinical chat, CDS alerts, ambient summaries, and audit logging
 - **AI Frontend (ClinOS)** — Clinician dashboard built with React 18 and Carbon Design System
 - **Medplum FHIR R4** — Full HL7 FHIR R4 server integration for interoperable health data exchange
-- **Orthanc + OHIF** — DICOM/PACS medical imaging storage with web-based radiology viewer
-- **Nginx Gateway** — TLS-terminating reverse proxy with domain routing for 8 services
+- **Nginx Gateway** — TLS-terminating reverse proxy with domain routing for all services
 - **Data synchronization** — Bi-directional sync between OpenEMR, Medplum FHIR, and SSO databases
 - **Huawei Cloud CCE** — Kubernetes deployment scripts for production (ap-southeast-1 Singapore)
 - **Dual-layer AI safety** — Rule-based input guards (21 regex patterns) + SEA-Guard LLM for novel threat detection
 - **Multi-language support** — English, Chinese, Malay, Tamil across patient-facing agents
-- **Docker Compose orchestration** — 13+ containers with health checks and dependency management
+- **Docker Compose orchestration** — 10+ containers with health checks and dependency management
 - **Synthea data seeding** — Scripts for generating and loading realistic patient data
 - **Environment variable security** — All secrets injected via environment, no hardcoded credentials
 

@@ -40,17 +40,14 @@ app.get('/api/system-status', async (req, res) => {
     };
 
     const medplumBase = process.env.MEDPLUM_BASE_URL || 'http://medplum-server:8103';
-    const orthancUrl = process.env.ORTHANC_URL || 'http://orthanc:8042';
     const langfuseUrl = process.env.LANGFUSE_URL || 'http://172.18.0.1:3100';
-    const [openemr, medplum, orthanc, ohif, langfuse] = await Promise.all([
+    const [openemr, medplum, langfuse] = await Promise.all([
         check('http://openemr:80/interface/login/login.php'),
         check(`${medplumBase}/healthcheck`),
-        check(orthancUrl.replace(/\/\/.*@/, '//') + '/system'),
-        check('http://ohif-viewer:80'),
         check(`${langfuseUrl}/api/public/health`),
     ]);
 
-    res.json({ openemr, medplum, orthanc, ohif, langfuse });
+    res.json({ openemr, medplum, langfuse });
 });
 
 // ===========================================================

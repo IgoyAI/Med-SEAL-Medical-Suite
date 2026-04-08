@@ -9,7 +9,7 @@ This document is the engineering contract for every AI agent in the Med-SEAL sys
 ## Architecture overview
 
 ```
-Patient App / OpenEMR / OHIF Viewer
+Patient App / OpenEMR / ClinOS
           |
     SEA-LION Guard (input gate)
           |
