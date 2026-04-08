@@ -1,0 +1,539 @@
+/* ============================================
+   Med-SEAL AI Agent Sidebar
+   EMBEDDED into OpenEMR's flex layout
+   Not a floating widget — native panel
+   ============================================ */
+
+:root {
+    --ms-sidebar-w: 420px;
+    --ms-iconbar-w: 46px;
+    --ms-primary: #0066cc;
+    --ms-primary-light: #3b82f6;
+    --ms-teal: #14b8a6;
+    --ms-dark: #0f172a;
+    --ms-dark2: #1e293b;
+    --ms-dark3: #334155;
+    --ms-text: #e2e8f0;
+    --ms-text-dim: #94a3b8;
+    --ms-border: #334155;
+    --ms-surface: #1e293b;
+}
+
+/* ═══ The sidebar sits inside mainFrames_div as a flex sibling ═══ */
+#medseal-sidebar {
+    display: flex;
+    flex-shrink: 0;
+    height: 100%;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 13px;
+    position: relative;
+    z-index: 100;
+}
+
+#medseal-sidebar * {
+    box-sizing: border-box;
+}
+
+/* ═══ Vertical icon bar (always visible, 46px) ═══ */
+#medseal-iconbar {
+    width: var(--ms-iconbar-w);
+    min-width: var(--ms-iconbar-w);
+    height: 100%;
+    background: var(--ms-dark);
+    border-left: 1px solid var(--ms-border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 0 6px;
+    gap: 2px;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+/* Agent icon buttons */
+.medseal-agent-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    position: relative;
+    color: var(--ms-text-dim);
+    margin: 1px 0;
+    padding: 0;
+}
+
+.medseal-agent-icon:hover {
+    background: var(--ms-dark3);
+    color: var(--ms-text);
+}
+
+.medseal-agent-icon.active {
+    background: var(--ms-dark3);
+    color: white;
+    box-shadow: inset 3px 0 0 var(--ms-primary-light);
+}
+
+/* Per-agent accent colors when active */
+.medseal-agent-icon.active[data-agent="clinical"] {
+    box-shadow: inset 3px 0 0 #3b82f6;
+}
+
+.medseal-agent-icon.active[data-agent="radiology"] {
+    box-shadow: inset 3px 0 0 #8b5cf6;
+}
+
+.medseal-agent-icon.active[data-agent="cds"] {
+    box-shadow: inset 3px 0 0 #f59e0b;
+}
+
+.medseal-agent-icon.active[data-agent="ambient"] {
+    box-shadow: inset 3px 0 0 #10b981;
+}
+
+.medseal-agent-icon.active[data-agent="analytics"] {
+    box-shadow: inset 3px 0 0 #ec4899;
+}
+
+/* Notification dot */
+.medseal-agent-icon .notif-dot {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 7px;
+    height: 7px;
+    background: #ef4444;
+    border-radius: 50%;
+    border: 1.5px solid var(--ms-dark);
+    display: none;
+}
+
+.medseal-agent-icon.has-notif .notif-dot {
+    display: block;
+    animation: ms-pulse 2s infinite;
+}
+
+@keyframes ms-pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.4;
+    }
+}
+
+/* Tooltip */
+.medseal-agent-icon[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    right: calc(100% + 8px);
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--ms-dark2);
+    color: var(--ms-text);
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.12s;
+    border: 1px solid var(--ms-border);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 999;
+}
+
+.medseal-agent-icon:hover::after {
+    opacity: 1;
+}
+
+/* Hide tooltips when panel is expanded (agent name already visible in header) */
+#medseal-sidebar.expanded .medseal-agent-icon::after {
+    display: none;
+}
+
+/* Divider */
+.medseal-iconbar-divider {
+    width: 24px;
+    height: 1px;
+    background: var(--ms-border);
+    margin: 6px 0;
+}
+
+/* Collapse toggle at bottom */
+.medseal-collapse-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--ms-text-dim);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: auto;
+    transition: all 0.15s;
+    padding: 0;
+}
+
+.medseal-collapse-btn:hover {
+    background: var(--ms-dark3);
+    color: var(--ms-text);
+}
+
+/* ═══ Expanded panel ═══ */
+#medseal-panel {
+    width: 0;
+    overflow: hidden;
+    height: 100%;
+    background: var(--ms-dark);
+    border-left: 1px solid var(--ms-border);
+    display: flex;
+    flex-direction: column;
+    transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    flex-shrink: 0;
+}
+
+#medseal-sidebar.expanded #medseal-panel {
+    width: var(--ms-sidebar-w);
+}
+
+/* Panel inner content (prevent content from shrinking during animation) */
+#medseal-panel-inner {
+    width: var(--ms-sidebar-w);
+    min-width: var(--ms-sidebar-w);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ═══ Panel header ═══ */
+#medseal-panel-header {
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid var(--ms-border);
+    flex-shrink: 0;
+    background: var(--ms-dark2);
+}
+
+#medseal-panel-header .agent-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+#medseal-panel-header .agent-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: white;
+}
+
+#medseal-panel-header .agent-desc {
+    font-size: 11px;
+    color: var(--ms-text-dim);
+    margin-top: 1px;
+}
+
+.agent-status {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #22c55e;
+    margin-left: 4px;
+    flex-shrink: 0;
+    animation: ms-pulse 2s infinite;
+}
+
+#medseal-panel-header .close-btn {
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: var(--ms-text-dim);
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.12s;
+    padding: 0;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+#medseal-panel-header .close-btn:hover {
+    background: var(--ms-dark3);
+    color: white;
+}
+
+/* ═══ Patient context ═══ */
+#medseal-patient-ctx {
+    padding: 7px 16px;
+    background: rgba(59, 130, 246, 0.06);
+    border-bottom: 1px solid var(--ms-border);
+    color: var(--ms-primary-light);
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+#medseal-patient-ctx.none {
+    background: rgba(245, 158, 11, 0.06);
+    color: #f59e0b;
+}
+
+#medseal-patient-ctx strong {
+    color: white;
+}
+
+/* ═══ Chat messages ═══ */
+#medseal-chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+#medseal-chat-messages::-webkit-scrollbar {
+    width: 4px;
+}
+
+#medseal-chat-messages::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#medseal-chat-messages::-webkit-scrollbar-thumb {
+    background: var(--ms-dark3);
+    border-radius: 2px;
+}
+
+.medseal-msg {
+    max-width: 92%;
+    padding: 9px 13px;
+    border-radius: 10px;
+    font-size: 13px;
+    line-height: 1.55;
+    word-wrap: break-word;
+}
+
+.medseal-msg.user {
+    align-self: flex-end;
+    background: var(--ms-primary);
+    color: white;
+    border-bottom-right-radius: 3px;
+}
+
+.medseal-msg.ai {
+    align-self: flex-start;
+    background: var(--ms-dark2);
+    color: var(--ms-text);
+    border-bottom-left-radius: 3px;
+    border: 1px solid var(--ms-border);
+}
+
+.medseal-msg.ai pre {
+    background: var(--ms-dark);
+    padding: 8px 10px;
+    border-radius: 6px;
+    overflow-x: auto;
+    font-size: 11.5px;
+    margin: 6px 0;
+    border: 1px solid var(--ms-border);
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+.medseal-msg.ai strong {
+    color: white;
+}
+
+.medseal-msg.system {
+    align-self: center;
+    background: rgba(20, 184, 166, 0.08);
+    color: var(--ms-teal);
+    font-size: 11.5px;
+    border-radius: 6px;
+    padding: 5px 12px;
+    border: 1px solid rgba(20, 184, 166, 0.12);
+}
+
+/* AI response action buttons */
+.medseal-msg-actions {
+    display: flex;
+    gap: 5px;
+    margin-top: 6px;
+}
+
+.medseal-msg-actions button {
+    padding: 3px 8px;
+    border-radius: 5px;
+    border: 1px solid var(--ms-border);
+    background: var(--ms-dark);
+    color: var(--ms-text-dim);
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.12s;
+    font-family: inherit;
+}
+
+.medseal-msg-actions button:hover {
+    background: var(--ms-dark3);
+    color: white;
+    border-color: var(--ms-text-dim);
+}
+
+/* Typing indicator */
+.medseal-typing {
+    display: flex;
+    gap: 4px;
+    padding: 9px 13px;
+    align-self: flex-start;
+}
+
+.medseal-typing span {
+    width: 6px;
+    height: 6px;
+    background: var(--ms-primary-light);
+    border-radius: 50%;
+    animation: ms-bounce 1.4s infinite ease-in-out;
+}
+
+.medseal-typing span:nth-child(2) {
+    animation-delay: 0.16s;
+}
+
+.medseal-typing span:nth-child(3) {
+    animation-delay: 0.32s;
+}
+
+@keyframes ms-bounce {
+
+    0%,
+    80%,
+    100% {
+        transform: scale(0.6);
+        opacity: 0.3;
+    }
+
+    40% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* ═══ Quick actions ═══ */
+#medseal-chat-actions {
+    display: flex;
+    gap: 5px;
+    padding: 8px 16px;
+    flex-wrap: wrap;
+    border-top: 1px solid var(--ms-border);
+    flex-shrink: 0;
+}
+
+.medseal-action-btn {
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--ms-border);
+    background: var(--ms-dark2);
+    color: var(--ms-text);
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+}
+
+.medseal-action-btn:hover {
+    background: var(--ms-dark3);
+    border-color: var(--ms-primary-light);
+    color: white;
+}
+
+/* ═══ Input area ═══ */
+#medseal-chat-input-area {
+    display: flex;
+    padding: 10px 16px;
+    gap: 6px;
+    border-top: 1px solid var(--ms-border);
+    background: var(--ms-dark2);
+    flex-shrink: 0;
+    align-items: flex-end;
+}
+
+#medseal-chat-input {
+    flex: 1;
+    background: var(--ms-dark);
+    border: 1px solid var(--ms-border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: var(--ms-text);
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+    resize: none;
+    min-height: 18px;
+    max-height: 80px;
+}
+
+#medseal-chat-input::placeholder {
+    color: var(--ms-text-dim);
+}
+
+#medseal-chat-input:focus {
+    border-color: var(--ms-primary-light);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.12);
+}
+
+#medseal-chat-send {
+    width: 34px;
+    height: 34px;
+    border-radius: 7px;
+    background: var(--ms-primary);
+    border: none;
+    cursor: pointer;
+    color: white;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    flex-shrink: 0;
+    padding: 0;
+}
+
+#medseal-chat-send:hover {
+    background: var(--ms-primary-light);
+}
+
+#medseal-chat-send:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+/* ═══ Make the main OpenEMR frames shrink to accommodate ═══ */
+#mainFrames_div {
+    display: flex !important;
+    flex-direction: row !important;
+}
+
+#mainFrames_div>#framesDisplay {
+    flex: 1 !important;
+    min-width: 0 !important;
+}

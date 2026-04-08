@@ -1,0 +1,14 @@
+# Med-SEAL Agent Runtime — deployment requirements only (no training deps)
+fastapi>=0.115
+uvicorn[standard]
+pydantic-settings
+langchain>=0.3
+langchain-openai
+langchain-community
+langgraph>=0.2.70
+langgraph-checkpoint-redis
+langdetect
+ddgs
+httpx
+sqlalchemy
+aiosqlite

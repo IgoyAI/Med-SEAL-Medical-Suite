@@ -1,0 +1,106 @@
+# ==============================================================================
+# Medplum FHIR Server + App — Huawei Cloud CCE
+# Connects to: RDS PostgreSQL + DCS Redis (update IPs below)
+# ==============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: medplum-server
+  namespace: medseal
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: medplum-server
+  template:
+    metadata:
+      labels:
+        app: medplum-server
+    spec:
+      containers:
+      - name: medplum-server
+        image: medplum/medplum-server:latest
+        resources:
+          requests:
+            cpu: 250m
+            memory: 512Mi
+        ports:
+        - containerPort: 8103
+        env:
+        - name: MEDPLUM_BASE_URL
+          value: "http://medplum-server.medseal.svc.cluster.local:8103/"
+        - name: POSTGRES_DB
+          value: "medplum"
+        - name: POSTGRES_USER
+          value: "medplum"
+        - name: POSTGRES_HOST
+          value: "REPLACE_WITH_RDS_PG_IP"       # ← Update after databases.sh
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: medplum-db-pass
+              key: password
+        - name: REDIS_HOST
+          value: "REPLACE_WITH_DCS_REDIS_IP"     # ← Update after databases.sh
+        volumeMounts:
+        - name: medplum-config-vol
+          mountPath: /usr/src/medplum/medplum.config.json
+          subPath: medplum.config.json
+      volumes:
+      - name: medplum-config-vol
+        configMap:
+          name: medplum-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: medplum-server
+  namespace: medseal
+spec:
+  type: ClusterIP
+  selector:
+    app: medplum-server
+  ports:
+  - port: 8103
+    targetPort: 8103
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: medplum-app
+  namespace: medseal
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: medplum-app
+  template:
+    metadata:
+      labels:
+        app: medplum-app
+    spec:
+      containers:
+      - name: medplum-app
+        image: medplum/medplum-app:latest
+        resources:
+          requests:
+            cpu: 250m
+            memory: 512Mi
+        ports:
+        - containerPort: 3000
+        env:
+        - name: MEDPLUM_BASE_URL
+          value: "http://fhir.medseal.ELB_IP_PLACEHOLDER.nip.io/"  # ← Update with ELB IP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: medplum-app
+  namespace: medseal
+spec:
+  type: ClusterIP
+  selector:
+    app: medplum-app
+  ports:
+  - port: 3000
+    targetPort: 3000

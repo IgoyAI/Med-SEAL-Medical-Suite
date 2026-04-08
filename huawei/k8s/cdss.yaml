@@ -1,0 +1,40 @@
+# ==============================================================================
+# CDSS (Clinical Decision Support) Deployment — Huawei Cloud CCE
+# ==============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cdss
+  namespace: medseal
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cdss
+  template:
+    metadata:
+      labels:
+        app: cdss
+    spec:
+      containers:
+      - name: cdss
+        image: swr.ap-southeast-1.myhuaweicloud.com/medseal/cdss:latest
+        resources:
+          requests:
+            cpu: 250m
+            memory: 512Mi
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cdss
+  namespace: medseal
+spec:
+  type: ClusterIP
+  selector:
+    app: cdss
+  ports:
+  - port: 80
+    targetPort: 80

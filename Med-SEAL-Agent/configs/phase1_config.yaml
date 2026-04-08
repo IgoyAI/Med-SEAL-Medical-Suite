@@ -1,0 +1,60 @@
+# =============================================================================
+# Phase 1: Medical VLM Fine-tuning (Med-SEAL v0)
+# =============================================================================
+#
+# Usage:
+#   deepspeed --num_gpus=3 scripts/train_phase1.py configs/phase1_config.yaml
+#
+# Or with accelerate:
+#   accelerate launch --num_processes=3 scripts/train_phase1.py configs/phase1_config.yaml
+
+# --- Model ---
+model_name_or_path: "Qwen/Qwen3-VL-8B-Thinking"
+torch_dtype: "bfloat16"
+attn_implementation: "flash_attention_2"
+freeze_vision: true
+
+# --- LoRA ---
+lora_r: 64
+lora_alpha: 128
+lora_dropout: 0.05
+lora_target_modules: "q_proj,k_proj,v_proj,o_proj,gate_proj,up_proj,down_proj"
+
+# --- Vision processor ---
+min_pixels: 200704    # 256 * 28 * 28
+max_pixels: 1003520   # 1280 * 28 * 28
+
+# --- Data ---
+data_path: "data/combined_train.jsonl"
+max_length: 2048
+
+# --- Training ---
+output_dir: "checkpoints/phase1"
+num_train_epochs: 2
+per_device_train_batch_size: 6
+gradient_accumulation_steps: 8    # effective batch ≈ 6 * 3 GPUs * 8 = 144
+learning_rate: 2.0e-4
+lr_scheduler_type: "cosine"
+warmup_ratio: 0.03
+weight_decay: 0.01
+max_grad_norm: 1.0
+bf16: true
+gradient_checkpointing: true
+deepspeed: "configs/deepspeed_zero2.json"
+
+# --- Logging & saving ---
+logging_steps: 10
+logging_first_step: true
+save_strategy: "steps"
+save_steps: 500
+save_total_limit: 3
+report_to: "tensorboard"
+
+# --- Data loading ---
+dataloader_num_workers: 8
+dataloader_pin_memory: true
+dataloader_persistent_workers: true
+remove_unused_columns: false
+
+# --- Reproducibility ---
+seed: 42

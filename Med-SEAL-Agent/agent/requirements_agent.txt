@@ -1,0 +1,12 @@
+fastapi>=0.115
+uvicorn[standard]
+pydantic-settings
+langchain>=0.3
+langchain-openai
+langchain-community
+langgraph>=0.2.70
+langgraph-checkpoint-redis
+langdetect
+ddgs
+# Journal paper reading
+PyMuPDF

@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Med-SEAL AI Assistant</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: #f8f9fa;
+            color: #212529;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            margin: 0;
+            font-size: 14px;
+        }
+
+        /* Header */
+        .ai-header {
+            background: #e9ecef;
+            border-bottom: 1px solid #dee2e6;
+            padding: 6px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .ai-header h5 {
+            margin: 0;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .ai-header .badge {
+            font-size: 11px;
+        }
+
+        /* Chat tabs */
+        .chat-tabs-bar {
+            display: flex;
+            align-items: center;
+            background: #e9ecef;
+            border-bottom: 1px solid #dee2e6;
+            padding: 0 12px;
+            gap: 2px;
+            flex-shrink: 0;
+            overflow-x: auto;
+        }
+
+        .chat-tabs-bar::-webkit-scrollbar {
+            height: 3px;
+        }
+
+        .chat-tabs-bar::-webkit-scrollbar-thumb {
+            background: #adb5bd;
+            border-radius: 2px;
+        }
+
+        .chat-tab {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            font-size: 12px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            border-bottom: none;
+            border-radius: 4px 4px 0 0;
+            background: transparent;
+            color: #6c757d;
+            white-space: nowrap;
+            transition: all 0.15s;
+            position: relative;
+            top: 1px;
+        }
+
+        .chat-tab:hover {
+            background: #f8f9fa;
+            color: #212529;
+        }
+
+        .chat-tab.active {
+            background: #fff;
+            color: #212529;
+            border-color: #dee2e6;
+            font-weight: 500;
+        }
+
+        .chat-tab .close-tab {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+            border: none;
+            background: transparent;
+            color: #adb5bd;
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .chat-tab .close-tab:hover {
+            background: #dc3545;
+            color: white;
+        }
+
+        .new-chat-btn {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            border: 1px dashed #adb5bd;
+            background: transparent;
+            color: #6c757d;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 4px;
+            flex-shrink: 0;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .new-chat-btn:hover {
+            background: #007bff;
+            border-color: #007bff;
+            color: white;
+        }
+
+        /* Patient bar */
+        .patient-bar {
+            padding: 5px 20px;
+            border-bottom: 1px solid #dee2e6;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .patient-bar.alert-warning {
+            background: #fff3cd;
+            border-color: #ffc107;
+            color: #856404;
+        }
+
+        .patient-bar.alert-info {
+            background: #d1ecf1;
+            border-color: #bee5eb;
+            color: #0c5460;
+        }
+
+        .patient-bar strong {
+            color: #000;
+        }
+
+        .patient-bar .pid {
+            opacity: 0.5;
+            font-size: 11px;
+        }
+
+        /* Messages */
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: #fff;
+        }
+
+        .messages::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .messages::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .messages::-webkit-scrollbar-thumb {
+            background: #dee2e6;
+            border-radius: 3px;
+        }
+
+        .msg {
+            max-width: 75%;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            line-height: 1.6;
+            word-wrap: break-word;
+        }
+
+        .msg.user {
+            align-self: flex-end;
+            background: #007bff;
+            color: #fff;
+            border-bottom-right-radius: 2px;
+        }
+
+        .msg.ai {
+            align-self: flex-start;
+            background: #f8f9fa;
+            color: #212529;
+            border: 1px solid #dee2e6;
+            border-bottom-left-radius: 2px;
+        }
+
+        .msg.ai pre {
+            background: #e9ecef;
+            padding: 8px 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 12px;
+            margin: 6px 0;
+            border: 1px solid #dee2e6;
+        }
+
+        .msg.ai strong {
+            color: #000;
+        }
+
+        .msg.system {
+            align-self: center;
+            background: #d4edda;
+            color: #155724;
+            font-size: 12px;
+            border-radius: 4px;
+            padding: 4px 12px;
+            border: 1px solid #c3e6cb;
+        }
+
+        .msg-actions {
+            display: flex;
+            gap: 4px;
+            margin-top: 6px;
+        }
+
+        .msg-actions .btn {
+            font-size: 11px;
+            padding: 2px 8px;
+        }
+
+        .typing {
+            display: flex;
+            gap: 4px;
+            padding: 10px 14px;
+            align-self: flex-start;
+        }
+
+        .typing span {
+            width: 6px;
+            height: 6px;
+            background: #007bff;
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out;
+        }
+
+        .typing span:nth-child(2) {
+            animation-delay: 0.16s;
+        }
+
+        .typing span:nth-child(3) {
+            animation-delay: 0.32s;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            80%,
+            100% {
+                transform: scale(0.6);
+                opacity: 0.3;
+            }
+
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* Actions */
+        .actions-bar {
+            padding: 6px 20px;
+            border-top: 1px solid #dee2e6;
+            background: #f8f9fa;
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            flex-shrink: 0;
+        }
+
+        /* Input */
+        .input-area {
+            display: flex;
+            padding: 8px 20px;
+            gap: 8px;
+            border-top: 1px solid #dee2e6;
+            background: #fff;
+            flex-shrink: 0;
+            align-items: flex-end;
+        }
+
+        .input-area textarea {
+            flex: 1;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            padding: 8px 12px;
+            font-size: 13px;
+            font-family: inherit;
+            outline: none;
+            resize: none;
+            min-height: 20px;
+            max-height: 100px;
+        }
+
+        .input-area textarea:focus {
+            border-color: #80bdff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, .25);
+        }
+
+        .input-area textarea::placeholder {
+            color: #6c757d;
+        }
+
+        /* Empty state */
+        .empty-state {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            font-size: 14px;
+            text-align: center;
+            padding: 40px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="ai-header">
+        <span>🤖</span>
+        <h5>AI Assistant</h5>
+        <span class="badge badge-success">Online</span>
+    </div>
+
+    <div class="chat-tabs-bar" id="chatTabsBar">
+        <button class="new-chat-btn" id="newChatBtn" title="New chat">+</button>
+    </div>
+
+    <div class="patient-bar alert-warning" id="patientBar">
+        ⚠️ No patient selected — open a patient chart
+    </div>
+
+    <div class="messages" id="messages"></div>
+
+    <div class="actions-bar" id="actions">
+        <button class="btn btn-sm btn-outline-primary" data-action="soap">📋 SOAP</button>
+        <button class="btn btn-sm btn-outline-primary" data-action="assessment">🩺 Assessment</button>
+        <button class="btn btn-sm btn-outline-primary" data-action="plan">📝 Plan</button>
+        <button class="btn btn-sm btn-outline-primary" data-action="hpi">📄 HPI</button>
+        <button class="btn btn-sm btn-outline-primary" data-action="rx">💊 Rx</button>
+        <button class="btn btn-sm btn-outline-primary" data-action="referral">📨 Referral</button>
+        <button class="btn btn-sm btn-outline-primary" data-action="summary">📊 Summary</button>
+        <button class="btn btn-sm btn-outline-primary" data-action="labs">🔬 Labs</button>
+    </div>
+
+    <div class="input-area">
+        <textarea id="chatInput" class="form-control" placeholder="Ask the AI assistant..." rows="1"></textarea>
+        <button class="btn btn-primary btn-sm" id="sendBtn">Send</button>
+    </div>
+
+    <script>
+        var AI_URL = 'https://medseal-agent-74997794842.asia-southeast1.run.app';
+        var isLoading = false;
+        var chatCounter = 0;
+        var chats = {};       // id -> { label, patient, history[], savedHTML }
+        var activeChat = null;
+
+        // ═══ Chat Management ═══
+        function createChat(label) {
+            chatCounter++;
+            var id = 'chat_' + chatCounter;
+            var patient = detectPatientNow();
+            chats[id] = {
+                label: label || (patient ? patient.name : 'Chat ' + chatCounter),
+                patient: patient,
+                history: [],
+                savedHTML: null
+            };
+            renderTabs();
+            switchChat(id);
+            return id;
+        }
+
+        function closeChat(id) {
+            if (Object.keys(chats).length <= 1) return; // keep at least one
+            var tabEl = document.querySelector('.chat-tab[data-chat="' + id + '"]');
+            delete chats[id];
+            if (activeChat === id) {
+                var remaining = Object.keys(chats);
+                switchChat(remaining[remaining.length - 1]);
+            }
+            renderTabs();
+        }
+
+        function switchChat(id) {
+            if (activeChat && chats[activeChat]) {
+                chats[activeChat].savedHTML = document.getElementById('messages').innerHTML;
+            }
+            activeChat = id;
+            var chat = chats[id];
+
+            // Restore messages
+            var msgs = document.getElementById('messages');
+            if (chat.savedHTML) {
+                msgs.innerHTML = chat.savedHTML;
+                rebindButtons(msgs);
+            } else {
+                msgs.innerHTML = '';
+                addMessage('👋 I\'m your <strong>AI Assistant</strong>. I can draft SOAP notes, assessments, treatment plans, prescriptions, and more.<br><br>Open a patient chart and click a quick action, or ask me anything.', 'ai', false);
+            }
+            msgs.scrollTop = msgs.scrollHeight;
+
+            // Update patient bar
+            updatePatientBar(chat.patient);
+            renderTabs();
+            document.getElementById('chatInput').focus();
+        }
+
+        function renderTabs() {
+            var bar = document.getElementById('chatTabsBar');
+            var newBtn = document.getElementById('newChatBtn');
+            // Remove old tabs
+            bar.querySelectorAll('.chat-tab').forEach(function (t) { t.remove(); });
+
+            Object.keys(chats).forEach(function (id) {
+                var chat = chats[id];
+                var tab = document.createElement('div');
+                tab.className = 'chat-tab' + (id === activeChat ? ' active' : '');
+                tab.dataset.chat = id;
+
+                var icon = chat.patient ? '👤' : '💬';
+                var label = chat.label;
+                if (label.length > 20) label = label.substring(0, 18) + '…';
+
+                tab.innerHTML = '<span>' + icon + ' ' + label + '</span>';
+
+                // Close button (but not if only 1 chat)
+                if (Object.keys(chats).length > 1) {
+                    var closeBtn = document.createElement('button');
+                    closeBtn.className = 'close-tab';
+                    closeBtn.innerHTML = '×';
+                    closeBtn.title = 'Close this chat';
+                    closeBtn.addEventListener('click', function (e) {
+                        e.stopPropagation();
+                        closeChat(id);
+                    });
+                    tab.appendChild(closeBtn);
+                }
+
+                tab.addEventListener('click', function () { switchChat(id); });
+                bar.insertBefore(tab, newBtn);
+            });
+        }
+
+        // ═══ Patient ═══
+        function detectPatientNow() {
+            var pid = null, pname = null;
+            try {
+                var topWin = window.top || window.parent || window;
+                if (topWin.application_data) {
+                    try {
+                        var appData = topWin.application_data;
+                        if (appData.patient && typeof appData.patient === 'function') {
+                            var pt = appData.patient();
+                            if (pt) {
+                                pname = typeof pt.pname === 'function' ? pt.pname() : pt.pname;
+                                pid = typeof pt.pid === 'function' ? pt.pid() : pt.pid;
+                            }
+                        }
+                    } catch (e) { }
+                }
+                if (!pid) {
+                    try {
+                        var topDoc = topWin.document;
+                        ['#patient_caret', '.ptName', '#ptName', '.demographics-name'].forEach(function (sel) {
+                            if (!pname) {
+                                var el = topDoc.querySelector(sel);
+                                if (el && el.textContent.trim()) pname = el.textContent.trim().split('\n')[0].trim();
+                            }
+                        });
+                        topDoc.querySelectorAll('a[href*="pid="], iframe[src*="pid="]').forEach(function (a) {
+                            var m = (a.href || a.src || '').match(/pid=(\d+)/);
+                            if (m && m[1] !== '0') pid = m[1];
+                        });
+                    } catch (e) { }
+                }
+                if (!pid) {
+                    try {
+                        (window.top || window.parent || window).document.querySelectorAll('iframe').forEach(function (f) {
+                            try { var m = (f.src || '').match(/pid=(\d+)/); if (m && m[1] !== '0') pid = m[1]; } catch (e) { }
+                        });
+                    } catch (e) { }
+                }
+            } catch (e) { }
+
+            if (pid) return { pid: pid, name: pname || 'Patient #' + pid };
+            if (pname) return { name: pname };
+            return null;
+        }
+
+        function updatePatientBar(patient) {
+            var bar = document.getElementById('patientBar');
+            if (patient && patient.pid) {
+                bar.className = 'patient-bar alert-info';
+                bar.innerHTML = '👤 <strong>' + patient.name + '</strong> <span class="pid">(PID: ' + patient.pid + ')</span>';
+            } else if (patient && patient.name) {
+                bar.className = 'patient-bar alert-info';
+                bar.innerHTML = '👤 <strong>' + patient.name + '</strong>';
+            } else {
+                bar.className = 'patient-bar alert-warning';
+                bar.innerHTML = '⚠️ No patient selected — open a patient chart';
+            }
+        }
+
+        // Update active chat's patient context periodically
+        function pollPatient() {
+            if (!activeChat || !chats[activeChat]) return;
+            var pt = detectPatientNow();
+            var chat = chats[activeChat];
+            var changed = false;
+            if (pt && !chat.patient) changed = true;
+            else if (pt && chat.patient && pt.pid !== chat.patient.pid) changed = true;
+
+            if (changed) {
+                chat.patient = pt;
+                // Update tab label if it was a generic name
+                if (chat.label.startsWith('Chat ') && pt) chat.label = pt.name;
+                updatePatientBar(pt);
+                renderTabs();
+            }
+        }
+
+        // ═══ Messages ═══
+        function addMessage(text, role, insertable) {
+            var container = document.getElementById('messages');
+            var wrapper = document.createElement('div');
+            wrapper.className = 'msg-wrapper';
+
+            var msg = document.createElement('div');
+            msg.className = 'msg ' + role;
+
+            if (role === 'ai') {
+                msg.innerHTML = text
+                    .replace(/```([\s\S]*?)```/g, '<pre>$1</pre>')
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                    .replace(/\n/g, '<br>');
+            } else {
+                msg.innerHTML = text;
+            }
+            wrapper.appendChild(msg);
+
+            if (role === 'ai' && insertable !== false) {
+                var btnRow = document.createElement('div');
+                btnRow.className = 'msg-actions';
+
+                var insertBtn = document.createElement('button');
+                insertBtn.className = 'btn btn-sm btn-outline-success insert-btn';
+                insertBtn.textContent = '📥 Insert';
+                insertBtn.dataset.text = text;
+                insertBtn.onclick = function () { insertIntoField(text); };
+
+                var copyBtn = document.createElement('button');
+                copyBtn.className = 'btn btn-sm btn-outline-secondary copy-btn';
+                copyBtn.textContent = '📋 Copy';
+                copyBtn.dataset.text = text;
+                copyBtn.onclick = function () {
+                    navigator.clipboard.writeText(text);
+                    copyBtn.textContent = '✅ Copied';
+                    setTimeout(function () { copyBtn.textContent = '📋 Copy'; }, 2000);
+                };
+
+                btnRow.appendChild(insertBtn);
+                btnRow.appendChild(copyBtn);
+                wrapper.appendChild(btnRow);
+            }
+
+            container.appendChild(wrapper);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function rebindButtons(container) {
+            container.querySelectorAll('.insert-btn').forEach(function (btn) {
+                btn.onclick = function () { insertIntoField(btn.dataset.text); };
+            });
+            container.querySelectorAll('.copy-btn').forEach(function (btn) {
+                btn.onclick = function () {
+                    navigator.clipboard.writeText(btn.dataset.text);
+                    btn.textContent = '✅ Copied';
+                    setTimeout(function () { btn.textContent = '📋 Copy'; }, 2000);
+                };
+            });
+        }
+
+        function insertIntoField(text) {
+            var fields = [];
+            try {
+                (window.top || window.parent || window).document.querySelectorAll('iframe').forEach(function (f) {
+                    try {
+                        var fdoc = f.contentDocument || f.contentWindow.document;
+                        fdoc.querySelectorAll('textarea, [contenteditable="true"]').forEach(function (el) {
+                            if (el.offsetParent !== null) fields.push(el);
+                        });
+                    } catch (e) { }
+                });
+            } catch (e) { }
+            if (!fields.length) {
+                addMessage('⚠️ No editable fields found. Open a patient form first.', 'system', false);
+                return;
+            }
+            var target = fields.find(function (f) { return f.tagName === 'TEXTAREA'; }) || fields[0];
+            if (target.tagName === 'TEXTAREA' || target.tagName === 'INPUT') {
+                target.value = target.value ? target.value + '\n\n' + text : text;
+                target.dispatchEvent(new Event('input', { bubbles: true }));
+                target.dispatchEvent(new Event('change', { bubbles: true }));
+            } else {
+                target.innerHTML += '<br><br>' + text.replace(/\n/g, '<br>');
+                target.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+            addMessage('✅ Inserted into form.', 'system', false);
+        }
+
+        // ═══ Send ═══
+        async function sendMessage(userMessage) {
+            if (isLoading || !userMessage.trim() || !activeChat) return;
+            isLoading = true;
+            var chat = chats[activeChat];
+            var input = document.getElementById('chatInput');
+            var sendBtn = document.getElementById('sendBtn');
+            input.value = '';
+            sendBtn.disabled = true;
+
+            addMessage(userMessage, 'user', false);
+            chat.history.push({ role: 'user', content: userMessage });
+
+            var container = document.getElementById('messages');
+            var typing = document.createElement('div');
+            typing.className = 'typing'; typing.id = 'typing';
+            typing.innerHTML = '<span></span><span></span><span></span>';
+            container.appendChild(typing);
+            container.scrollTop = container.scrollHeight;
+
+            try {
+                var res = await fetch(AI_URL + '/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: userMessage,
+                        history: chat.history.slice(-10),
+                        patient: chat.patient || { name: 'No patient selected' },
+                    }),
+                });
+                var el = document.getElementById('typing'); if (el) el.remove();
+                if (!res.ok) {
+                    addMessage('⚠️ AI service error (' + res.status + ').', 'system', false);
+                } else {
+                    var data = await res.json();
+                    var response = data.response || 'No response.';
+                    addMessage(response, 'ai', true);
+                    chat.history.push({ role: 'assistant', content: response });
+                }
+            } catch (error) {
+                var el = document.getElementById('typing'); if (el) el.remove();
+                addMessage('⚠️ Cannot reach AI at ' + AI_URL, 'system', false);
+            }
+            isLoading = false;
+            sendBtn.disabled = false;
+            input.focus();
+
+            // Update tab label from first user message if generic
+            if (chat.label.startsWith('Chat ') && chat.history.length === 1) {
+                var short = userMessage.substring(0, 25);
+                if (userMessage.length > 25) short += '…';
+                chat.label = short;
+                renderTabs();
+            }
+        }
+
+        // ═══ Quick actions ═══
+        var PROMPTS = {
+            soap: 'Draft a SOAP note for {patient}\'s visit today.\nSUBJECTIVE:\nOBJECTIVE:\nASSESSMENT:\nPLAN:',
+            assessment: 'Draft a clinical assessment for {patient}. Include differential diagnoses.',
+            plan: 'Draft a treatment plan for {patient}. Include medications with dosages.',
+            hpi: 'Draft the HPI for {patient}.',
+            rx: 'Draft a prescription for {patient}.\nMedication:\nDose:\nRoute:\nFrequency:\nDuration:',
+            referral: 'Draft a referral letter for {patient}.',
+            summary: 'Provide a clinical summary for {patient}.',
+            labs: 'Review recent lab results for {patient} and highlight abnormal values.',
+        };
+
+        // ═══ Init ═══
+        document.getElementById('sendBtn').addEventListener('click', function () {
+            sendMessage(document.getElementById('chatInput').value);
+        });
+        document.getElementById('chatInput').addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(e.target.value); }
+        });
+        document.querySelectorAll('[data-action]').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var pt = (activeChat && chats[activeChat] && chats[activeChat].patient)
+                    ? chats[activeChat].patient.name : 'the patient';
+                var prompt = PROMPTS[btn.dataset.action];
+                if (prompt) sendMessage(prompt.replace(/\{patient\}/g, pt));
+            });
+        });
+        document.getElementById('newChatBtn').addEventListener('click', function () {
+            createChat();
+        });
+
+        // Create first chat
+        createChat('Chat 1');
+        setInterval(pollPatient, 3000);
+    </script>
+</body>
+
+</html>

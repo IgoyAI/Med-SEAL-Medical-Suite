@@ -1,0 +1,151 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: langfuse
+      POSTGRES_PASSWORD: medseal-langfuse-pg-2026
+      POSTGRES_DB: langfuse
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U langfuse"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  clickhouse:
+    image: clickhouse/clickhouse-server:24
+    restart: unless-stopped
+    cap_add:
+      - SYS_NICE
+      - IPC_LOCK
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    environment:
+      CLICKHOUSE_DB: langfuse
+      CLICKHOUSE_USER: langfuse
+      CLICKHOUSE_PASSWORD: medseal-langfuse-ch-2026
+    volumes:
+      - chdata:/var/lib/clickhouse
+      - chlog:/var/log/clickhouse-server
+    healthcheck:
+      test: ["CMD-SHELL", "clickhouse-client --query 'SELECT 1' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  minio:
+    image: minio/minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: langfuse-minio
+      MINIO_ROOT_PASSWORD: medseal-minio-2026
+    volumes:
+      - miniodata:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  minio-init:
+    image: minio/mc
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 langfuse-minio medseal-minio-2026;
+      mc mb --ignore-existing local/langfuse;
+      exit 0;
+      "
+
+  langfuse-web:
+    image: langfuse/langfuse:3
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      clickhouse:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
+    ports:
+      - "3100:3000"
+    environment:
+      DATABASE_URL: postgresql://langfuse:medseal-langfuse-pg-2026@postgres:5432/langfuse
+      CLICKHOUSE_URL: http://clickhouse:8123
+      CLICKHOUSE_MIGRATION_URL: clickhouse://langfuse:medseal-langfuse-ch-2026@clickhouse:9000/langfuse
+      CLICKHOUSE_CLUSTER_ENABLED: "false"
+      CLICKHOUSE_USER: langfuse
+      CLICKHOUSE_PASSWORD: medseal-langfuse-ch-2026
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      LANGFUSE_S3_EVENT_UPLOAD_ENABLED: "true"
+      LANGFUSE_S3_EVENT_UPLOAD_BUCKET: langfuse
+      LANGFUSE_S3_EVENT_UPLOAD_ENDPOINT: http://minio:9000
+      LANGFUSE_S3_EVENT_UPLOAD_ACCESS_KEY_ID: langfuse-minio
+      LANGFUSE_S3_EVENT_UPLOAD_SECRET_ACCESS_KEY: medseal-minio-2026
+      LANGFUSE_S3_EVENT_UPLOAD_FORCE_PATH_STYLE: "true"
+      LANGFUSE_S3_EVENT_UPLOAD_REGION: us-east-1
+      NEXTAUTH_SECRET: a7c3f8d2e1b9460587f3c2d1a0e9b8c7d6f5e4a3b2c1d0e9f8a7b6c5d4e3f2a1
+      SALT: b8d4e9f1a2c3b5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0
+      NEXTAUTH_URL: http://119.13.90.82:3100
+      LANGFUSE_INIT_USER_EMAIL: admin@medseal.ai
+      LANGFUSE_INIT_USER_PASSWORD: MedSeal@2026!
+      LANGFUSE_INIT_USER_NAME: Med-SEAL Admin
+      LANGFUSE_INIT_ORG_NAME: Med-SEAL
+      LANGFUSE_INIT_PROJECT_NAME: Med-SEAL Agent
+      LANGFUSE_INIT_PROJECT_PUBLIC_KEY: pk-lf-medseal-2026
+      LANGFUSE_INIT_PROJECT_SECRET_KEY: sk-lf-medseal-2026
+
+  langfuse-worker:
+    image: langfuse/langfuse-worker:3
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      clickhouse:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:3030:3030"
+    environment:
+      DATABASE_URL: postgresql://langfuse:medseal-langfuse-pg-2026@postgres:5432/langfuse
+      CLICKHOUSE_URL: http://clickhouse:8123
+      CLICKHOUSE_USER: langfuse
+      CLICKHOUSE_PASSWORD: medseal-langfuse-ch-2026
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      LANGFUSE_S3_EVENT_UPLOAD_ENABLED: "true"
+      LANGFUSE_S3_EVENT_UPLOAD_BUCKET: langfuse
+      LANGFUSE_S3_EVENT_UPLOAD_ENDPOINT: http://minio:9000
+      LANGFUSE_S3_EVENT_UPLOAD_ACCESS_KEY_ID: langfuse-minio
+      LANGFUSE_S3_EVENT_UPLOAD_SECRET_ACCESS_KEY: medseal-minio-2026
+      LANGFUSE_S3_EVENT_UPLOAD_FORCE_PATH_STYLE: "true"
+      LANGFUSE_S3_EVENT_UPLOAD_REGION: us-east-1
+
+volumes:
+  pgdata:
+  chdata:
+  chlog:
+  miniodata:

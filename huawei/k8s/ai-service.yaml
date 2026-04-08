@@ -1,0 +1,90 @@
+# ==============================================================================
+# AI Service Deployment — Huawei Cloud CCE
+# Connects to: RDS PostgreSQL (SSO) + RDS MySQL (OpenEMR)
+# ==============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-service
+  namespace: medseal
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ai-service
+  template:
+    metadata:
+      labels:
+        app: ai-service
+    spec:
+      containers:
+      - name: ai-service
+        image: swr.ap-southeast-1.myhuaweicloud.com/medseal/ai-service:latest
+        resources:
+          requests:
+            cpu: 250m
+            memory: 512Mi
+        ports:
+        - containerPort: 4003
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 4003
+        env:
+        - name: PORT
+          value: "4003"
+        - name: LLM_API_URL
+          value: "https://medseal-llm.ngrok-free.dev/v1/chat/completions" # Your GPU server
+        - name: LLM_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: llm-api-key
+              key: key
+        - name: LLM_MODEL
+          value: "med-r1"
+        - name: LLM_TEMPERATURE
+          value: "0.3"
+        - name: LLM_MAX_TOKENS
+          value: "2048"
+        - name: SSO_DB_URL
+          value: "postgres://sso:sso_secret@REPLACE_WITH_RDS_PG_IP:5432/medseal_sso" # ← Update after databases.sh
+        - name: OPENEMR_DB_HOST
+          value: "REPLACE_WITH_RDS_MYSQL_IP" # ← Update after databases.sh
+        - name: OPENEMR_DB_USER
+          value: "openemr"
+        - name: OPENEMR_DB_PASS
+          valueFrom:
+            secretKeyRef:
+              name: openemr-db-pass
+              key: password
+        - name: OPENEMR_DB_NAME
+          value: "openemr"
+        - name: OPENEMR_BASE_URL
+          value: "http://emr.medseal.ELB_IP_PLACEHOLDER.nip.io" # ← Update with ELB IP
+        - name: OPENEMR_EXTERNAL_URL
+          value: "http://emr.medseal.ELB_IP_PLACEHOLDER.nip.io"
+        - name: MEDPLUM_BASE_URL
+          value: "http://medplum-server.medseal.svc.cluster.local:8103"
+        volumeMounts:
+        - name: audit-data
+          mountPath: /data
+      volumes:
+      - name: audit-data
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-service
+  namespace: medseal
+spec:
+  type: ClusterIP
+  selector:
+    app: ai-service
+  ports:
+  - name: http
+    port: 80
+    targetPort: 4003
+  - name: internal
+    port: 4003
+    targetPort: 4003

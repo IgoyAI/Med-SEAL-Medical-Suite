@@ -1,0 +1,76 @@
+# ==============================================================================
+# ELB Ingress — Huawei Cloud CCE
+# Exposes Med-SEAL Suite services via Huawei Elastic Load Balance (ELB)
+# ==============================================================================
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: medseal-ingress
+  namespace: medseal
+  annotations:
+    # Use Huawei ELB (shared type, bandwidth charged by traffic, 100Mbit max)
+    kubernetes.io/elb.class: "union"
+    kubernetes.io/elb.autocreate: '{"type":"public","bandwidth_chargemode":"traffic","bandwidth_size":100}'
+spec:
+  ingressClassName: cce
+  rules:
+  - host: app.medseal.ELB_IP_PLACEHOLDER.nip.io
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: ai-frontend
+            port:
+              number: 80
+  - host: api.medseal.ELB_IP_PLACEHOLDER.nip.io
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: ai-service
+            port:
+              number: 80
+  - host: emr.medseal.ELB_IP_PLACEHOLDER.nip.io
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: openemr
+            port:
+              number: 80
+  - host: fhir.medseal.ELB_IP_PLACEHOLDER.nip.io
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: medplum-server
+            port:
+              number: 8103
+  - host: medplum.medseal.ELB_IP_PLACEHOLDER.nip.io
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: medplum-app
+            port:
+              number: 3000
+  - host: cdss.medseal.ELB_IP_PLACEHOLDER.nip.io
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: cdss
+            port:
+              number: 80

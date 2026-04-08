@@ -1,0 +1,72 @@
+# ==============================================================================
+# Sync Service Deployment — Huawei Cloud CCE
+# Connects to: RDS PostgreSQL (SSO) + RDS MySQL (OpenEMR)
+# ==============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sync-service
+  namespace: medseal
+  labels:
+    app: sync-service
+    component: sync
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sync-service
+  template:
+    metadata:
+      labels:
+        app: sync-service
+        component: sync
+    spec:
+      containers:
+      - name: sync-service
+        image: node:20-alpine
+        command: ["sh", "-c"]
+        args:
+        - |
+          cd /tmp && mkdir -p sync && cd sync
+          npm init -y >/dev/null 2>&1
+          npm install mysql2 pg bcryptjs >/dev/null 2>&1
+          cp /app/sync-service.js /tmp/sync/sync-service.js
+          node /tmp/sync/sync-service.js
+        env:
+        - name: MEDPLUM_BASE_URL
+          value: "http://medplum-server.medseal.svc.cluster.local:8103"
+        - name: MEDPLUM_EMAIL
+          value: "admin@example.com"
+        - name: MEDPLUM_PASSWORD
+          value: "medplum_admin"
+        - name: OPENEMR_DB_HOST
+          value: "REPLACE_WITH_RDS_MYSQL_IP"  # ← Update after databases.sh
+        - name: OPENEMR_DB_PORT
+          value: "3306"
+        - name: OPENEMR_DB_USER
+          value: "openemr"
+        - name: OPENEMR_DB_PASS
+          valueFrom:
+            secretKeyRef:
+              name: openemr-db-pass
+              key: password
+        - name: OPENEMR_DB_NAME
+          value: "openemr"
+        - name: SSO_DB_URL
+          value: "postgres://sso:sso_secret@REPLACE_WITH_RDS_PG_IP:5432/medseal_sso" # ← Update after databases.sh
+        - name: SYNC_INTERVAL
+          value: "30"
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            cpu: 200m
+            memory: 256Mi
+        volumeMounts:
+        - name: sync-script
+          mountPath: /app
+      volumes:
+      - name: sync-script
+        configMap:
+          name: sync-service-script

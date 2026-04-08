@@ -1,0 +1,69 @@
+# =============================================================================
+# Phase 2: SEA-LION Knowledge Distillation (Med-SEAL v1)
+# =============================================================================
+#
+# Usage:
+#   deepspeed --num_gpus=3 scripts/train_phase2.py configs/phase2_config.yaml
+#
+# Or with accelerate:
+#   accelerate launch --num_processes=3 scripts/train_phase2.py configs/phase2_config.yaml
+
+# --- Models ---
+student_model_path: "models/med-seal-v0"
+teacher_model_path: "aisingapore/Qwen-SEA-LION-v4-8B-VL"
+torch_dtype: "bfloat16"
+attn_implementation: "flash_attention_2"
+freeze_vision: true
+
+# --- LoRA (applied to student) ---
+lora_r: 64
+lora_alpha: 128
+lora_dropout: 0.05
+lora_target_modules: "q_proj,k_proj,v_proj,o_proj,gate_proj,up_proj,down_proj"
+
+# --- Vision processor ---
+min_pixels: 200704    # 256 * 28 * 28
+max_pixels: 501760    # 640 * 28 * 28  (halved — two VLMs per GPU)
+
+# --- Data ---
+sea_data_paths: "data/sea_medical_train.jsonl"
+english_replay_path: "data/combined_train.jsonl"
+english_ratio: 0.2
+max_length: 2048
+
+# --- Distillation ---
+alpha: 0.5
+temperature: 2.0
+
+# --- Training ---
+output_dir: "checkpoints/phase2"
+num_train_epochs: 2
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 16   # effective batch ~ 1 * 4 GPUs * 16 = 64
+learning_rate: 5.0e-5
+lr_scheduler_type: "cosine"
+warmup_ratio: 0.03
+weight_decay: 0.01
+max_grad_norm: 1.0
+bf16: true
+gradient_checkpointing: true
+ddp_timeout: 7200
+ddp_find_unused_parameters: false
+# deepspeed: "configs/deepspeed_zero2.json"  # disabled -- incompatible with PyTorch 2.10
+
+# --- Logging & saving ---
+logging_steps: 10
+logging_first_step: true
+save_strategy: "steps"
+save_steps: 200
+save_total_limit: 3
+report_to: "tensorboard"
+
+# --- Data loading ---
+dataloader_num_workers: 4
+dataloader_pin_memory: true
+dataloader_drop_last: true
+remove_unused_columns: false
+
+# --- Reproducibility ---
+seed: 42

@@ -1,0 +1,42 @@
+# Virtual environments
+.venv-az/
+venv/
+__pycache__/
+*.pyc
+
+# Database
+*.db
+*.db-shm
+*.db-wal
+
+# Data & models (too large for git)
+data/
+models/
+checkpoints/
+
+# Logs & results
+logs/
+results/
+jobs/
+
+# Deploy artifacts
+*.zip
+*.tar.gz
+*.pptx
+
+# IDE
+.DS_Store
+.idea/
+.vscode/
+
+# Docs site
+Med-SEAL-docs/
+
+# Notebooks
+notebooks/
+
+# Claude Code
+.claude/
+
+# Secrets (never commit)
+.env

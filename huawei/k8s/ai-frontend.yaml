@@ -1,0 +1,40 @@
+# ==============================================================================
+# AI Frontend Deployment — Huawei Cloud CCE
+# ==============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-frontend
+  namespace: medseal
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ai-frontend
+  template:
+    metadata:
+      labels:
+        app: ai-frontend
+    spec:
+      containers:
+      - name: ai-frontend
+        image: swr.ap-southeast-1.myhuaweicloud.com/medseal/ai-frontend:latest
+        resources:
+          requests:
+            cpu: 250m
+            memory: 512Mi
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-frontend
+  namespace: medseal
+spec:
+  type: ClusterIP
+  selector:
+    app: ai-frontend
+  ports:
+  - port: 80
+    targetPort: 80

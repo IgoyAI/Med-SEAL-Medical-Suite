@@ -1,0 +1,31 @@
+{
+    "Name": "MedSEAL-Orthanc",
+    "RemoteAccessAllowed": true,
+    "AuthenticationEnabled": true,
+    "RegisteredUsers": {
+        "admin": "pass"
+    },
+    "DicomAet": "MEDSEAL",
+    "DicomPort": 4242,
+    "HttpPort": 8042,
+    "StorageDirectory": "/var/lib/orthanc/db",
+    "IndexDirectory": "/var/lib/orthanc/db",
+    "DicomWeb": {
+        "Enable": true,
+        "Root": "/dicom-web/",
+        "EnableWado": true,
+        "WadoRoot": "/wado",
+        "Ssl": false,
+        "StudiesMetadata": "Full",
+        "SeriesMetadata": "Full"
+    },
+    "HttpHeaders": {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization, Accept"
+    },
+    "Plugins": [
+        "/usr/local/share/orthanc/plugins/"
+    ],
+    "StableAge": 5
+}

@@ -1,0 +1,246 @@
+<html>
+<head>
+<title>{{ 'SOAP'|xlt }}</title>
+    {{ setupHeader() }}
+<style>
+    /* ── Med-SEAL AI Draft Button ── */
+    #msAiBar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 14px;
+        margin-bottom: 16px;
+        background: linear-gradient(135deg, #eef2ff 0%, #f0f9ff 100%);
+        border: 1px solid #c7d7fc;
+        border-radius: 10px;
+    }
+    #msAiBar .ms-ai-icon {
+        width: 34px; height: 34px;
+        background: linear-gradient(135deg, #2563eb, #06b6d4);
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        color: #fff; font-size: 14px; flex-shrink: 0;
+    }
+    #msAiBar .ms-ai-label { flex: 1; }
+    #msAiBar .ms-ai-label strong { font-size: 13px; color: #1e3a8a; display: block; }
+    #msAiBar .ms-ai-label span { font-size: 11px; color: #64748b; }
+    #btnGenerateDraft {
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 7px 16px;
+        background: linear-gradient(135deg, #2563eb, #06b6d4);
+        color: #fff; border: none; border-radius: 7px;
+        font-size: 13px; font-weight: 600; cursor: pointer;
+        transition: opacity .15s, transform .1s;
+        white-space: nowrap;
+    }
+    #btnGenerateDraft:hover:not(:disabled) { opacity: .88; transform: translateY(-1px); }
+    #btnGenerateDraft:disabled { opacity: .55; cursor: not-allowed; }
+    #btnGenerateDraft .ai-spin {
+        display: none; width: 14px; height: 14px;
+        border: 2px solid rgba(255,255,255,.35);
+        border-top-color: #fff;
+        border-radius: 50%;
+        animation: spin .7s linear infinite;
+    }
+    #btnGenerateDraft.loading .ai-spin { display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #msAiStatus {
+        font-size: 11.5px; color: #475569;
+        display: none; margin-top: 6px;
+    }
+    #msAiStatus.error { color: #dc2626; }
+</style>
+</head>
+<body>
+    <div class="container mt-3">
+        <div class="row">
+            <div class="col-12">
+                <h2>{{'SOAP'|xlt}}</h2>
+
+                <!-- Med-SEAL AI Draft Bar -->
+                <div id="msAiBar">
+                    <div class="ms-ai-icon"><i class="fa fa-stethoscope"></i></div>
+                    <div class="ms-ai-label">
+                        <strong>Med-SEAL AI</strong>
+                        <span>Generate Objective, Assessment &amp; Plan from Subjective notes</span>
+                    </div>
+                    <div>
+                        <button type="button" id="btnGenerateDraft" onclick="generateDraft()">
+                            <span class="ai-spin"></span>
+                            <i class="fa fa-magic"></i> Generate OAP Draft
+                        </button>
+                        <div id="msAiStatus"></div>
+                    </div>
+                </div>
+
+                <form name="soap" method="post" action="{{ FORM_ACTION | attr }}/interface/forms/soap/save.php" onsubmit="return top.restoreSession()">
+                    <input type="hidden" name="csrf_token_form" value="{{ csrfTokenRaw()|attr }}" />
+                    <fieldset>
+                        <legend>{{ 'Subjective' | xlt }}</legend>
+                        <div class="container">
+                            <div class="form-group">
+                                <textarea id="msSubjective" name="subjective" class="form-control" cols="60" rows="6" onkeyup="top.isSoapEdit = true;">{{ data.get_subjective()|text }}</textarea>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>{{ 'Objective' | xlt }}</legend>
+                        <div class="container">
+                            <div class="form-group">
+                                <textarea id="msObjective" name="objective" class="form-control" cols="60" rows="6" onkeyup="top.isSoapEdit = true;">{{ data.get_objective()|text }}</textarea>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>{{ 'Assessment'|xlt }}</legend>
+                        <div class="container">
+                            <div class="form-group">
+                                <textarea id="msAssessment" name="assessment" class="form-control" cols="60" rows="6" onkeyup="top.isSoapEdit = true;">{{ data.get_assessment()|text }}</textarea>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>{{ 'Plan'|xlt }}</legend>
+                        <div class="container">
+                            <div class="form-group">
+                                <textarea id="msPlan" name="plan" class="form-control" cols="60" rows="6" onkeyup="top.isSoapEdit = true;">{{ data.get_plan()|text }}</textarea>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <div class="form-group">
+                        <div class="btn-group" role="group">
+                            <button type="submit" class="btn btn-primary btn-save" name="Submit">{{ 'Save'|xlt }}</button>
+                            <button type="button" class="btn btn-secondary btn-cancel" id="btnClose">{{ 'Cancel'|xlt }}</button>
+                        </div>
+                        <input type="hidden" name="id" value="{{ data.get_id()|attr }}" />
+                        <input type="hidden" name="activity" value="{{ data.get_activity()|attr }}" />
+                        <input type="hidden" name="pid" value="{{ data.get_pid()|attr }}" />
+                        <input type="hidden" name="process" value="true" />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const close = function() {
+            if (top.isSoapEdit === true) {
+                dlgopen('', '', 450, 125, '', '<div class="text-danger">{{'Warning'|xlt}}</div>',
+                    {
+                    type: 'Alert',
+                    html: '<p>{{'Do you want to close the tabs?'|xla}}</p>',
+                    buttons: [
+                        { text: '{{'Cancel'|xla}}', close: true, style: 'default btn-sm' },
+                        { text: '{{'Close'|xla}}', close: true, style: 'danger btn-sm', click: closeSoap },
+                    ],
+                    allowDrag: false,
+                    allowResize: false,
+                });
+            } else {
+                top.restoreSession();
+                location.href = 'javascript:parent.closeTab(window.name, false)';
+            }
+        }
+
+        const closeSoap = function() {
+            top.isSoapEdit = false;
+            top.restoreSession();
+            location.href = 'javascript:parent.closeTab(window.name, false)';
+        }
+        $('#btnClose').click(close);
+
+        // Med-SEAL AI: Generate OAP Draft from Subjective
+        async function generateDraft() {
+            const subjective = document.getElementById('msSubjective').value.trim();
+            if (!subjective) {
+                setStatus('Please fill in the Subjective field first.', true);
+                return;
+            }
+
+            const btn = document.getElementById('btnGenerateDraft');
+            btn.disabled = true;
+            btn.classList.add('loading');
+            setStatus('Connecting to Med-SEAL AI...', false);
+
+            try {
+                // Create an agent session
+                const sessionRes = await fetch('http://localhost:9090/sessions', {
+                    method: 'POST',
+                    headers: { 'ngrok-skip-browser-warning': 'true' }
+                });
+                if (!sessionRes.ok) throw new Error('Failed to create AI session');
+                const sessionData = await sessionRes.json();
+                const sessionId = sessionData.session_id;
+
+                setStatus('Generating OAP draft...', false);
+
+                const pid = (document.querySelector('[name="pid"]')?.value || '0').toString();
+
+                const prompt = `You are a clinical documentation assistant. A doctor has written the following Subjective notes. Generate the Objective, Assessment, and Plan sections for a SOAP note. Be concise, professional, and clinically accurate.
+
+SUBJECTIVE:
+${subjective}
+
+Respond with EXACTLY this structure:
+OBJECTIVE:
+[objective findings and vital signs]
+
+ASSESSMENT:
+[clinical assessment and diagnosis]
+
+PLAN:
+[treatment plan and follow-up]`;
+
+                const msgRes = await fetch('http://localhost:9090/openemr/sessions/' + sessionId + '/chat/sync', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'ngrok-skip-browser-warning': 'true'
+                    },
+                    body: JSON.stringify({
+                        message: prompt,
+                        patient_id: pid
+                    })
+                });
+
+                if (!msgRes.ok) throw new Error('AI request failed: ' + msgRes.status);
+                const aiData = await msgRes.json();
+
+                let content = aiData.content || '';
+                // Strip chain-of-thought / answer tags
+                content = content.replace(/<answer>/gi, '').replace(/<\/answer>/gi, '');
+                content = content.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
+
+                const objMatch  = content.match(/OBJECTIVE:\s*([\s\S]*?)(?=\nASSESSMENT:|$)/i);
+                const assMatch  = content.match(/ASSESSMENT:\s*([\s\S]*?)(?=\nPLAN:|$)/i);
+                const planMatch = content.match(/PLAN:\s*([\s\S]*?)$/i);
+
+                if (objMatch?.[1])  { document.getElementById('msObjective').value  = objMatch[1].trim();  top.isSoapEdit = true; }
+                if (assMatch?.[1])  { document.getElementById('msAssessment').value = assMatch[1].trim();  top.isSoapEdit = true; }
+                if (planMatch?.[1]) { document.getElementById('msPlan').value        = planMatch[1].trim(); top.isSoapEdit = true; }
+
+                if (!objMatch && !assMatch && !planMatch) {
+                    // Fallback: dump entire response into Assessment
+                    document.getElementById('msAssessment').value = content;
+                    top.isSoapEdit = true;
+                }
+
+                setStatus('Draft complete. Review and edit below before saving.', false);
+            } catch (e) {
+                setStatus('Error: ' + e.message, true);
+            }
+
+            btn.disabled = false;
+            btn.classList.remove('loading');
+        }
+
+        function setStatus(msg, isError) {
+            const el = document.getElementById('msAiStatus');
+            el.textContent = msg;
+            el.className = isError ? 'error' : '';
+            el.style.display = 'block';
+        }
+    </script>
+
+</body>
+</html>

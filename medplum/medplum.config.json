@@ -1,0 +1,27 @@
+{
+    "port": 8103,
+    "baseUrl": "http://localhost:8103/",
+    "issuer": "http://localhost:8103/",
+    "jwksUrl": "http://localhost:8103/.well-known/jwks.json",
+    "authorizeUrl": "http://localhost:8103/authorize",
+    "tokenUrl": "http://localhost:8103/token",
+    "userInfoUrl": "http://localhost:8103/userinfo",
+    "appBaseUrl": "http://localhost:3000/",
+    "binaryStorage": "file:./binary/",
+    "storageBaseUrl": "http://localhost:8103/storage/",
+    "database": {
+        "dbname": "medplum",
+        "host": "medplum-db",
+        "port": 5432,
+        "username": "medplum",
+        "password": "medplum"
+    },
+    "redis": {
+        "host": "medplum-redis",
+        "port": 6379
+    },
+    "registerEnabled": true,
+    "maxJsonSize": "16mb",
+    "maxBatchSize": "50mb",
+    "allowedOrigins": "*"
+}

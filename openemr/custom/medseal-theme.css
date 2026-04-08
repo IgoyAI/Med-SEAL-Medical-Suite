@@ -1,0 +1,1725 @@
+/* ═══════════════════════════════════════════════════════════
+   Med-SEAL SSO Theme Override for OpenEMR
+   ═══════════════════════════════════════════════════════════
+   
+   Design principles (matching Med-SEAL SSO Portal):
+   ✓ Calming blue (#4a6fa5) primary — medical-grade, eye-friendly
+   ✓ Off-white warm surfaces — never harsh #fff backgrounds
+   ✓ Inter font family — modern, clean typography
+   ✓ Soft borders (#e4e2dd) — warm neutrals, not cold grays
+   ✓ WCAG AA contrast ratios
+   ═══════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* ══════════════════════════════════════
+   CSS CUSTOM PROPERTIES (Design Tokens)
+   ══════════════════════════════════════ */
+:root {
+    /* ── Primary (calming blue) ── */
+    --ms-primary: #4a6fa5;
+    --ms-primary-50: #eef3f9;
+    --ms-primary-100: #dae5f2;
+    --ms-primary-200: #b5cce6;
+    --ms-primary-600: #3d5f8f;
+    --ms-primary-700: #2f4e78;
+
+    /* ── Header ── */
+    --ms-header-bg: #4a6fa5;
+    --ms-header-text: #ffffff;
+    --ms-header-text-dim: #d4dff0;
+
+    /* ── Surfaces ── */
+    --ms-surface: #fafaf8;
+    --ms-surface-card: #ffffff;
+    --ms-surface-hover: #f5f5f2;
+    --ms-body-bg: #f4f3f0;
+
+    /* ── Borders ── */
+    --ms-border: #e4e2dd;
+    --ms-border-light: #edece8;
+    --ms-border-hover: #d0cec8;
+
+    /* ── Text ── */
+    --ms-text-primary: #2c2c2a;
+    --ms-text-secondary: #5a5a56;
+    --ms-text-tertiary: #8a8a84;
+    --ms-text-link: #3d5f8f;
+
+    /* ── Status ── */
+    --ms-success: #3d8b5e;
+    --ms-success-bg: #edf7f0;
+    --ms-warning: #b5862a;
+    --ms-warning-bg: #fdf6e8;
+    --ms-error: #c45353;
+    --ms-error-bg: #fdf0f0;
+
+    /* ── Layout tokens ── */
+    --ms-radius: 8px;
+    --ms-radius-sm: 5px;
+    --ms-shadow-sm: 0 1px 2px rgba(44, 44, 42, 0.04);
+    --ms-shadow: 0 1px 3px rgba(44, 44, 42, 0.06), 0 1px 2px rgba(44, 44, 42, 0.03);
+    --ms-shadow-md: 0 3px 10px rgba(44, 44, 42, 0.06);
+    --ms-transition: 0.15s ease;
+}
+
+/* ══════════════════════════════════════
+   GLOBAL TYPOGRAPHY & BODY
+   ══════════════════════════════════════ */
+body,
+html {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif !important;
+    background: var(--ms-body-bg) !important;
+    color: var(--ms-text-primary) !important;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-size: 14px !important;
+    line-height: 1.55 !important;
+}
+
+/* ══════════════════════════════════════
+   TOP NAVIGATION BAR (OpenEMR Navbar)
+   ══════════════════════════════════════ */
+.navbar,
+.navbar-default,
+.navbar-fixed-top,
+nav.navbar,
+#mainBox > nav,
+.navbar.navbar-default,
+#topNavBar,
+.body_top_nav {
+    background: var(--ms-header-bg) !important;
+    background-color: var(--ms-header-bg) !important;
+    border-color: var(--ms-primary-600) !important;
+    border-bottom: none !important;
+    box-shadow: 0 2px 8px rgba(44, 44, 42, 0.12) !important;
+    min-height: 48px !important;
+    padding: 0 16px !important;
+    overflow: visible !important;
+}
+
+/* ── Med-SEAL Branding ── */
+.navbar-brand,
+.navbar a.navbar-brand {
+    display: none !important;
+}
+
+nav.navbar::before {
+    content: "Med-SEAL EMR Systems";
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: -0.01em;
+    padding: 0 18px 0 6px;
+    margin-right: 8px;
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    height: 48px;
+}
+
+/* ── Enterprise Navigation Items ── */
+.navbar-nav,
+.appMenu.navbar-nav {
+    background: transparent !important;
+    box-shadow: none !important;
+    min-height: auto !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 1px !important;
+}
+
+/* ── Menu Labels — base style (dark, for dropdowns) ── */
+.menuLabel {
+    font-family: 'Inter', -apple-system, sans-serif !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    padding: 7px 13px !important;
+    border-radius: 5px !important;
+    cursor: pointer !important;
+    transition: all 0.15s ease !important;
+    white-space: nowrap !important;
+    letter-spacing: 0.01em !important;
+    color: var(--ms-text-primary) !important;
+}
+
+/* ── TOP-LEVEL nav labels ONLY — white text on blue bar ── */
+.appMenu.navbar-nav > div > .menuLabel,
+.appMenu.navbar-nav > div > .menuSection > .menuLabel,
+.appMenu.navbar-nav > div > .menuSection > .dropdown > .menuLabel,
+#mainMenu > .appMenu > div > .menuLabel,
+#mainMenu > .appMenu > div > .menuSection > .menuLabel,
+#mainMenu > .appMenu > div > .menuSection > .dropdown > .menuLabel {
+    color: #ffffff !important;
+}
+
+/* Top-level hover */
+.appMenu.navbar-nav > div > .menuLabel:hover,
+.appMenu.navbar-nav > div > .menuSection:hover > .menuLabel,
+.appMenu.navbar-nav > div > .menuSection:hover > .dropdown > .menuLabel {
+    color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.15) !important;
+}
+
+
+/* ── Menu Icons (.closeButton / .fa) ── */
+.appMenu .closeButton,
+.appMenu .fa,
+.navbar .closeButton,
+#mainMenu .closeButton,
+#mainMenu .fa.closeButton {
+    color: rgba(255, 255, 255, 0.7) !important;
+    font-size: 12px !important;
+}
+
+.appMenu > div:hover .closeButton,
+.menuSection:hover .closeButton {
+    color: #ffffff !important;
+}
+
+/* ── Menu Section containers ── */
+.menuSection,
+.appMenu > div {
+    display: flex !important;
+    align-items: center !important;
+    position: relative !important;
+    overflow: visible !important;
+}
+
+/* Ensure the dropdown wrapper has proper positioning */
+.menuSection .dropdown,
+.menuSection.dropdown {
+    position: relative !important;
+}
+
+/* ── Disabled menu items ── */
+.menuDisabled {
+    opacity: 0.4 !important;
+    pointer-events: none !important;
+}
+
+/* ── Dropdown Menus (enterprise grade) ── */
+.menuEntries,
+.menuEntries.dropdown-menu,
+.navbar .dropdown-menu,
+.dropdown-menu {
+    background: #ffffff !important;
+    border: 1px solid var(--ms-border) !important;
+    border-radius: 8px !important;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+    padding: 6px !important;
+    min-width: 180px !important;
+    z-index: 9999 !important;
+    overflow: visible !important;
+    position: absolute !important;
+    top: 100% !important;
+    left: 0 !important;
+    margin-top: 0 !important;
+}
+
+/* ── Nested sub-dropdowns: fly out to the right ── */
+.menuEntries .menuEntries,
+.menuEntries .dropdown-menu,
+.dropdown-menu .dropdown-menu,
+.menuEntries li .menuEntries,
+.menuEntries li .dropdown-menu {
+    top: 0 !important;
+    left: 100% !important;
+    margin-top: 0 !important;
+    margin-left: 4px !important;
+    border-radius: 8px !important;
+}
+
+/* Ensure nested dropdown parent li is positioned */
+.menuEntries li,
+.dropdown-menu li {
+    position: relative !important;
+}
+
+
+/* Ensure navbar collapse doesn't clip dropdowns */
+#mainMenu,
+.navbar-collapse,
+.collapse.navbar-collapse {
+    overflow: visible !important;
+}
+
+
+/* CRITICAL: Dropdown menu labels must be DARK (overrides navbar white) */
+.menuEntries li .menuLabel,
+.menuEntries.dropdown-menu .menuLabel,
+.menuEntries.dropdown-menu li .menuLabel,
+ul.menuEntries .menuLabel,
+ul.menuEntries li .menuLabel,
+.navbar .dropdown-menu .menuLabel,
+.navbar .menuEntries .menuLabel,
+.dropdown-menu li .menuLabel,
+/* Nested level 2+ sub-dropdowns — ensure dark */
+.menuEntries .menuEntries .menuLabel,
+.menuEntries .menuEntries li .menuLabel,
+.menuEntries .menuSection .menuEntries .menuLabel,
+.dropdown-menu .dropdown-menu .menuLabel,
+.dropdown-menu .dropdown-menu li .menuLabel {
+    color: #2c2c2a !important;
+    font-family: 'Inter', -apple-system, sans-serif !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    padding: 8px 14px !important;
+    border-radius: 5px !important;
+    transition: all 0.12s ease !important;
+    background: transparent !important;
+}
+
+
+.menuEntries li:hover .menuLabel,
+.menuEntries.dropdown-menu li:hover .menuLabel,
+ul.menuEntries li:hover .menuLabel,
+.navbar .dropdown-menu li:hover .menuLabel,
+.dropdown-menu li:hover .menuLabel {
+    background: var(--ms-primary-50) !important;
+    color: var(--ms-primary) !important;
+}
+
+.menuEntries li .closeButton,
+.menuEntries .fa.closeButton,
+ul.menuEntries li .closeButton {
+    color: var(--ms-text-tertiary) !important;
+    font-size: 12px !important;
+}
+
+.menuEntries li:hover .closeButton,
+ul.menuEntries li:hover .closeButton {
+    color: var(--ms-primary) !important;
+}
+
+/* ── Navbar Search (enterprise) ── */
+.navbar .form-control,
+.navbar input[type="text"],
+#anySearchBox {
+    background: rgba(255, 255, 255, 0.12) !important;
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+    color: #ffffff !important;
+    border-radius: 6px 0 0 6px !important;
+    font-family: 'Inter', sans-serif !important;
+    font-size: 12px !important;
+    height: 32px !important;
+    padding: 0 12px !important;
+    line-height: 32px !important;
+    transition: all 0.15s ease !important;
+    box-sizing: border-box !important;
+}
+
+/* Search button — same height as field */
+.navbar .input-group-append .btn,
+.navbar .btn-secondary,
+.navbar #search_globals,
+.navbar .input-group-append button {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+    border-left: none !important;
+    color: #ffffff !important;
+    border-radius: 0 6px 6px 0 !important;
+    height: 32px !important;
+    width: 36px !important;
+    padding: 0 !important;
+    line-height: 32px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+}
+
+.navbar .input-group-append .btn:hover,
+.navbar #search_globals:hover {
+    background: rgba(255, 255, 255, 0.25) !important;
+}
+
+.navbar .input-group-append .btn .fa,
+.navbar #search_globals .fa {
+    color: #ffffff !important;
+    font-size: 13px !important;
+}
+
+/* Input group container */
+.navbar .input-group {
+    height: 32px !important;
+    align-items: center !important;
+}
+
+/* User icon / avatar area — same 32px proportions */
+#userData,
+#userData > .dropdown,
+#userData .btn,
+#userData > a,
+#userData > span {
+    background: transparent !important;
+    border: none !important;
+}
+
+#userData .dropdown-toggle,
+#userData > a,
+#userData > .dropdown > a {
+    height: 32px !important;
+    width: 32px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 50% !important;
+    background: rgba(255, 255, 255, 0.15) !important;
+    padding: 0 !important;
+}
+
+#userData .fa-user,
+#userData .fa-cog,
+#userData img,
+#userData .user-icon {
+    color: #ffffff !important;
+    font-size: 14px !important;
+}
+
+/* Dropdown icons must be DARK (not white) — e.g. the 'i' in About */
+#userData .dropdown-menu i,
+#userData .dropdown-menu .fa,
+#userData .dropdown-menu .fas,
+#userData .dropdown-menu .far,
+#userData .dropdown-menu .glyphicon,
+.dropdown-menu i,
+.dropdown-menu .fa:not(.closeButton),
+.menuEntries i,
+.menuEntries .fa:not(.closeButton) {
+    color: var(--ms-text-tertiary) !important;
+}
+
+
+.navbar .form-control::placeholder,
+.navbar input[type="text"]::placeholder,
+#anySearchBox::placeholder {
+    color: rgba(255, 255, 255, 0.45) !important;
+}
+
+.navbar .form-control:focus,
+.navbar input[type="text"]:focus,
+#anySearchBox:focus {
+    background: rgba(255, 255, 255, 0.2) !important;
+    border-color: rgba(255, 255, 255, 0.35) !important;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.08) !important;
+    outline: none !important;
+}
+
+/* ── Navbar Icons (general) ── */
+.navbar .glyphicon,
+.navbar .fa,
+.navbar .fas,
+.navbar .far {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* ── Navbar Right Section (user/logout) ── */
+.navbar-nav.navbar-right > li > a,
+.navbar .navbar-right a {
+    color: rgba(255, 255, 255, 0.8) !important;
+    font-family: 'Inter', sans-serif !important;
+    font-size: 12px !important;
+    font-weight: 500 !important;
+    border-radius: 5px !important;
+    padding: 6px 10px !important;
+}
+
+.navbar-nav.navbar-right > li > a:hover,
+.navbar .navbar-right a:hover {
+    color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.12) !important;
+}
+
+/* ── User Profile Dropdown (right-aligned, no clipping) ── */
+#userData .dropdown-menu,
+#userData .menuEntries,
+.navbar-nav.navbar-right .dropdown-menu,
+.navbar .navbar-right .dropdown-menu {
+    left: auto !important;
+    right: 0 !important;
+    min-width: 280px !important;
+    width: auto !important;
+    top: 100% !important;
+}
+
+#userData .dropdown-menu .menuLabel,
+#userData .menuEntries .menuLabel,
+#userData .dropdown-menu a,
+.navbar-nav.navbar-right .dropdown-menu a,
+.navbar .navbar-right .dropdown-menu a,
+.navbar .navbar-right .dropdown-menu .menuLabel {
+    color: #2c2c2a !important;
+    font-family: 'Inter', -apple-system, sans-serif !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    padding: 8px 14px !important;
+    display: block !important;
+    white-space: nowrap !important;
+}
+
+#userData .dropdown-menu a:hover,
+#userData .dropdown-menu .menuLabel:hover,
+.navbar-nav.navbar-right .dropdown-menu a:hover,
+.navbar .navbar-right .dropdown-menu a:hover {
+    background: var(--ms-primary-50) !important;
+    color: var(--ms-primary) !important;
+}
+
+
+/* ── Navbar Toggler (mobile) ── */
+.navbar-toggler {
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    border-radius: 5px !important;
+    padding: 4px 8px !important;
+}
+
+.navbar-toggler .navbar-toggler-icon,
+.navbar-toggler-icon {
+    filter: brightness(0) invert(1) !important;
+}
+
+
+/* ══════════════════════════════════════
+   TAB BAR (OpenEMR Tabs)
+   ══════════════════════════════════════ */
+.tabControls {
+    background: #f5f6f8 !important;
+    border-bottom: 1px solid var(--ms-border) !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: stretch !important;
+    min-height: 36px !important;
+    gap: 0 !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+}
+
+/* Individual tabs */
+.tabSpan {
+    display: inline-flex !important;
+    align-items: center !important;
+    padding: 0 14px !important;
+    height: 36px !important;
+    min-height: 36px !important;
+    font-family: 'Inter', -apple-system, sans-serif !important;
+    font-size: 12.5px !important;
+    font-weight: 500 !important;
+    color: var(--ms-text-secondary) !important;
+    background: transparent !important;
+    border: none !important;
+    border-bottom: 2px solid transparent !important;
+    border-right: 1px solid var(--ms-border) !important;
+    cursor: pointer !important;
+    transition: all 0.15s ease !important;
+    white-space: nowrap !important;
+    gap: 4px !important;
+    position: relative !important;
+}
+
+.tabSpan:hover {
+    background: rgba(0, 0, 0, 0.03) !important;
+    color: var(--ms-text-primary) !important;
+}
+
+/* Active/current tab */
+.tabSpan:not(.tabsNoHover) {
+    border-bottom: 2px solid var(--ms-primary) !important;
+    color: var(--ms-primary) !important;
+    background: #ffffff !important;
+    font-weight: 600 !important;
+}
+
+/* Inactive/hidden tab */
+.tabSpan.tabsNoHover {
+    color: var(--ms-text-tertiary) !important;
+    background: transparent !important;
+    border-bottom: 2px solid transparent !important;
+}
+
+.tabSpan.tabsNoHover:hover {
+    color: var(--ms-text-secondary) !important;
+    background: rgba(0, 0, 0, 0.03) !important;
+}
+
+/* Tab title text */
+.tabTitle {
+    font-family: 'Inter', -apple-system, sans-serif !important;
+    font-size: 12.5px !important;
+    letter-spacing: 0.01em !important;
+}
+
+.tabTitle.tabHidden {
+    opacity: 0.55 !important;
+}
+
+/* Tab action icons (refresh, lock, close) */
+.tabSpan .fa {
+    font-size: 10px !important;
+    color: var(--ms-text-tertiary) !important;
+    opacity: 0.5 !important;
+    transition: all 0.12s ease !important;
+    cursor: pointer !important;
+    padding: 2px !important;
+    border-radius: 3px !important;
+}
+
+.tabSpan:hover .fa,
+.tabSpan:not(.tabsNoHover) .fa {
+    opacity: 0.7 !important;
+}
+
+.tabSpan .fa:hover {
+    opacity: 1 !important;
+    color: var(--ms-primary) !important;
+    background: var(--ms-primary-50) !important;
+}
+
+/* Close button specific — red on hover */
+.tabSpan .fa-times:hover {
+    color: #dc3545 !important;
+    background: rgba(220, 53, 69, 0.08) !important;
+}
+
+/* Patient panel toggle arrow */
+.tabControls .menu_arrow,
+#patient_caret {
+    color: var(--ms-text-tertiary) !important;
+    font-size: 12px !important;
+    width: 28px !important;
+    height: 28px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    border-radius: 5px !important;
+    border: 1px solid var(--ms-border) !important;
+    background: #ffffff !important;
+    margin: 0 6px !important;
+    transition: all 0.15s ease !important;
+    flex-shrink: 0 !important;
+}
+
+#patient_caret:hover {
+    color: var(--ms-primary) !important;
+    border-color: var(--ms-primary) !important;
+    background: var(--ms-primary-50) !important;
+}
+
+/* The first tabsNoHover wrapper around the caret */
+.tabControls > .tabsNoHover.w-1 {
+    display: flex !important;
+    align-items: center !important;
+    border: none !important;
+    padding: 0 !important;
+    height: 36px !important;
+    border-right: none !important;
+    border-bottom: none !important;
+}
+
+/* Filler space after tabs */
+.tabControls .tabsNoHover.w-100 {
+    border: none !important;
+    min-height: auto !important;
+    height: auto !important;
+}
+
+/* bgcolor2 override — remove OpenEMR default */
+.tabSpan.bgcolor2 {
+    background: transparent !important;
+}
+
+.tabSpan.bgcolor2:not(.tabsNoHover) {
+    background: #ffffff !important;
+}
+
+
+/* ══════════════════════════════════════
+   CALENDAR (PostCalendar / Week View)
+   ══════════════════════════════════════ */
+
+/* Calendar toolbar — remove blue, use clean surface */
+#topToolbarRight,
+#topToolbarRight.bgcolor2,
+.body_title {
+    background: #f5f6f8 !important;
+    background-color: #f5f6f8 !important;
+    border-bottom: 1px solid var(--ms-border) !important;
+    color: var(--ms-text-primary) !important;
+}
+
+/* General bgcolor2 override for calendar context */
+.bgcolor2 {
+    background-color: #f5f6f8 !important;
+}
+
+/* Calendar day column headers */
+td.dayheader,
+table.dayheader {
+    background-color: #f0f2f5 !important;
+    border: none !important;
+    border-bottom: 2px solid var(--ms-border) !important;
+    padding: 8px 4px !important;
+}
+
+td.dayheader a,
+td.dayheader a:link,
+td.dayheader a:visited,
+td.dayheader a:active,
+td.dayheader a:hover {
+    font-family: 'Inter', -apple-system, sans-serif !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    color: var(--ms-text-secondary) !important;
+    text-decoration: none !important;
+}
+
+td.dayheader a:hover {
+    color: var(--ms-primary) !important;
+}
+
+/* Today's column — subtle highlight, not bright blue */
+td.dayheader[style*="background"],
+.today,
+.selectedday {
+    background-color: var(--ms-primary-50) !important;
+}
+
+/* Calendar navigation arrows */
+.calnav,
+#pc_nav a,
+a[href*="caldate"] {
+    color: var(--ms-primary) !important;
+    text-decoration: none !important;
+    font-weight: 600 !important;
+}
+
+/* Calendar date range header */
+#pc_date_range,
+.calNav,
+.fc-toolbar-title {
+    font-family: 'Inter', -apple-system, sans-serif !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    color: var(--ms-text-primary) !important;
+}
+
+/* Calendar action buttons (Day, Week, Month, Print, Refresh) */
+#pc_username_opt,
+#topToolbarRight .btn,
+#topToolbarRight button,
+.calTopButton,
+#pc_nav .btn {
+    font-family: 'Inter', sans-serif !important;
+    font-size: 12px !important;
+    font-weight: 500 !important;
+    border-radius: 6px !important;
+    padding: 5px 14px !important;
+    transition: all 0.15s ease !important;
+}
+
+/* Calendar table grid */
+table.calcontainer {
+    border: 1px solid var(--ms-border) !important;
+    border-collapse: collapse !important;
+}
+
+/* Event cells */
+td.eventslist,
+td.eventsentry {
+    background-color: #ffffff !important;
+    border: 1px solid #eef0f2 !important;
+    font-family: 'Inter', sans-serif !important;
+    font-size: 12px !important;
+    padding: 4px 6px !important;
+}
+
+table.eventslist,
+table.eventsentry {
+    background-color: #ffffff !important;
+}
+
+/* Event appointments */
+.event_appointment {
+    border-radius: 4px !important;
+    padding: 2px 6px !important;
+    margin: 1px 0 !important;
+    font-family: 'Inter', sans-serif !important;
+    font-size: 11px !important;
+}
+
+/* Provider name/add event bar — no harsh blue */
+.providerContainer,
+#providerList,
+.providerBar {
+    background: #f0f2f5 !important;
+    color: var(--ms-text-secondary) !important;
+    font-family: 'Inter', sans-serif !important;
+    font-size: 12px !important;
+}
+
+/* Time column on the left */
+td.timeslot,
+.time_col {
+    font-family: 'Inter', sans-serif !important;
+    font-size: 11px !important;
+    color: var(--ms-text-tertiary) !important;
+    background: #fafbfc !important;
+    padding: 2px 6px !important;
+    border-right: 1px solid var(--ms-border) !important;
+}
+
+/* Calendar mini sidebar */
+.miniCalendar,
+#pc_mini_cal {
+    font-family: 'Inter', sans-serif !important;
+    font-size: 11px !important;
+}
+
+.miniCalendar a,
+#pc_mini_cal a {
+    color: var(--ms-text-secondary) !important;
+    text-decoration: none !important;
+}
+
+.miniCalendar a:hover,
+#pc_mini_cal a:hover {
+    color: var(--ms-primary) !important;
+}
+
+/* body_main blue top border — remove */
+.body_main,
+.body_main_widescreen {
+    background-color: #ffffff !important;
+    border-top: none !important;
+}
+
+/* Calendar category select */
+select.bg-info {
+    background-color: #ffffff !important;
+    color: var(--ms-text-primary) !important;
+    border: 1px solid var(--ms-border) !important;
+    border-radius: 6px !important;
+    font-family: 'Inter', sans-serif !important;
+    font-size: 12px !important;
+}
+
+/* ══════════════════════════════════════
+   DATEPICKER (Bootstrap DateTimePicker)
+   ══════════════════════════════════════ */
+
+/* Picker container */
+.bootstrap-datetimepicker-widget,
+.datepicker,
+.datepicker-dropdown {
+    font-family: 'Inter', -apple-system, sans-serif !important;
+    border-radius: 10px !important;
+    border: 1px solid var(--ms-border) !important;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12) !important;
+    padding: 8px !important;
+}
+
+/* Day of week headers (SUN, MON, etc.) */
+.bootstrap-datetimepicker-widget table th,
+.datepicker table th {
+    font-family: 'Inter', sans-serif !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    color: var(--ms-text-tertiary) !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.03em !important;
+}
+
+/* All day cells */
+.bootstrap-datetimepicker-widget table td,
+.datepicker table td {
+    font-family: 'Inter', sans-serif !important;
+    font-size: 13px !important;
+    border-radius: 6px !important;
+    padding: 6px !important;
+    transition: all 0.12s ease !important;
+}
+
+/* Today highlight — subtle, not bright blue */
+.bootstrap-datetimepicker-widget table td.today,
+.bootstrap-datetimepicker-widget table td.today::before,
+.datepicker table td.today,
+.datepicker .today {
+    background: var(--ms-primary-50) !important;
+    background-color: var(--ms-primary-50) !important;
+    color: var(--ms-primary) !important;
+    font-weight: 600 !important;
+}
+
+/* Active/selected day */
+.bootstrap-datetimepicker-widget table td.active,
+.bootstrap-datetimepicker-widget table td.active:hover,
+.datepicker table td.active,
+.datepicker .active {
+    background: var(--ms-primary) !important;
+    background-color: var(--ms-primary) !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    border-radius: 6px !important;
+}
+
+/* Hover on days */
+.bootstrap-datetimepicker-widget table td:hover,
+.datepicker table td:hover {
+    background: #f0f2f5 !important;
+    cursor: pointer !important;
+}
+
+/* Old/new month days (faded) */
+.bootstrap-datetimepicker-widget table td.old,
+.bootstrap-datetimepicker-widget table td.new,
+.datepicker table td.old,
+.datepicker table td.new {
+    color: var(--ms-text-tertiary) !important;
+    opacity: 0.5 !important;
+}
+
+/* Month/Year header */
+.bootstrap-datetimepicker-widget table th.picker-switch,
+.datepicker .datepicker-switch {
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    color: var(--ms-text-primary) !important;
+}
+
+/* Navigation arrows */
+.bootstrap-datetimepicker-widget table th.prev,
+.bootstrap-datetimepicker-widget table th.next,
+.datepicker .prev,
+.datepicker .next {
+    color: var(--ms-text-tertiary) !important;
+    cursor: pointer !important;
+}
+
+.bootstrap-datetimepicker-widget table th.prev:hover,
+.bootstrap-datetimepicker-widget table th.next:hover {
+    color: var(--ms-primary) !important;
+    background: var(--ms-primary-50) !important;
+    border-radius: 6px !important;
+}
+
+/* Flow Board title */
+#flow_board_parameters,
+.report_search_bar {
+    background: #f8f9fb !important;
+    border: 1px solid var(--ms-border) !important;
+    border-radius: 8px !important;
+    padding: 12px 16px !important;
+    font-family: 'Inter', sans-serif !important;
+}
+
+/* ══════════════════════════════════════
+   INNER PAGE TAB NAV (Messages/Reminders/Recalls etc.)
+   ══════════════════════════════════════ */
+ul.tabNav,
+#oe-nav-ul.tabNav {
+    background: #f0f2f5 !important;
+    background-color: #f0f2f5 !important;
+    border-bottom: 1px solid var(--ms-border) !important;
+    padding: 0 8px !important;
+    margin: 0 !important;
+    list-style: none !important;
+    display: flex !important;
+}
+
+ul.tabNav li,
+#oe-nav-ul.tabNav li {
+    list-style: none !important;
+}
+
+ul.tabNav a,
+ul.tabNav li a,
+#oe-nav-ul.tabNav a {
+    color: var(--ms-text-secondary) !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    font-family: 'Inter', -apple-system, sans-serif !important;
+    font-size: 12.5px !important;
+    font-weight: 500 !important;
+    padding: 8px 16px !important;
+    border: none !important;
+    border-bottom: 2px solid transparent !important;
+    text-decoration: none !important;
+    display: inline-block !important;
+    transition: all 0.15s ease !important;
+}
+
+ul.tabNav a:hover,
+ul.tabNav li a:hover,
+#oe-nav-ul.tabNav a:hover {
+    color: var(--ms-primary) !important;
+    background: rgba(0, 0, 0, 0.03) !important;
+    background-color: rgba(0, 0, 0, 0.03) !important;
+}
+
+ul.tabNav li.current a,
+ul.tabNav li.active a,
+ul.tabNav a.active,
+#oe-nav-ul.tabNav li.current a,
+#oe-nav-ul.tabNav .current a {
+    color: var(--ms-primary) !important;
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    font-weight: 600 !important;
+    border-bottom: 2px solid var(--ms-primary) !important;
+}
+
+/* ══════════════════════════════════════
+   PAGE TITLES & HEADINGS
+   ══════════════════════════════════════ */
+h1, h2, h3, h4, h5, h6,
+.title,
+.title_bar,
+.title_bar_top,
+.oe-page-title,
+.oe-text-to-right,
+#title {
+    font-family: 'Inter', -apple-system, sans-serif !important;
+    color: var(--ms-text-primary) !important;
+    letter-spacing: -0.01em !important;
+}
+
+h2,
+.title_bar,
+.title_bar_top {
+    font-size: 19px !important;
+    font-weight: 700 !important;
+    color: var(--ms-text-primary) !important;
+    margin-bottom: 4px !important;
+    padding-bottom: 8px !important;
+    border-bottom: 1px solid var(--ms-border-light) !important;
+}
+
+h3 {
+    font-size: 16px !important;
+    font-weight: 600 !important;
+}
+
+h4, h5 {
+    font-size: 14px !important;
+    font-weight: 600 !important;
+}
+
+/* ══════════════════════════════════════
+   NAV TABS (Bootstrap .nav-tabs)
+   ══════════════════════════════════════ */
+.nav-tabs {
+    border-bottom: 1px solid var(--ms-border) !important;
+    margin-bottom: 16px !important;
+}
+
+.nav-tabs > li > a,
+.nav-tabs .nav-link {
+    color: var(--ms-text-secondary) !important;
+    font-family: 'Inter', sans-serif !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    padding: 8px 16px !important;
+    border: 1px solid transparent !important;
+    border-radius: var(--ms-radius-sm) var(--ms-radius-sm) 0 0 !important;
+    transition: all var(--ms-transition) !important;
+    margin-right: 2px !important;
+}
+
+.nav-tabs > li > a:hover,
+.nav-tabs .nav-link:hover {
+    color: var(--ms-primary) !important;
+    background: var(--ms-primary-50) !important;
+    border-color: transparent !important;
+}
+
+.nav-tabs > li.active > a,
+.nav-tabs > li.active > a:hover,
+.nav-tabs > li.active > a:focus,
+.nav-tabs .nav-link.active {
+    color: var(--ms-primary) !important;
+    font-weight: 600 !important;
+    background: var(--ms-surface-card) !important;
+    border: 1px solid var(--ms-border) !important;
+    border-bottom-color: var(--ms-surface-card) !important;
+}
+
+/* ══════════════════════════════════════
+   FORM ELEMENTS
+   ══════════════════════════════════════ */
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="number"],
+input[type="search"],
+input[type="tel"],
+input[type="url"],
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"],
+textarea,
+select,
+.form-control {
+    font-family: 'Inter', sans-serif !important;
+    font-size: 13px !important;
+    padding: 8px 12px !important;
+    border: 1px solid var(--ms-border) !important;
+    border-radius: var(--ms-radius-sm) !important;
+    background: var(--ms-surface-card) !important;
+    color: var(--ms-text-primary) !important;
+    transition: all var(--ms-transition) !important;
+    outline: none !important;
+    box-shadow: none !important;
+    line-height: 1.4 !important;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="email"]:focus,
+input[type="number"]:focus,
+input[type="search"]:focus,
+input[type="tel"]:focus,
+input[type="url"]:focus,
+input[type="date"]:focus,
+input[type="time"]:focus,
+input[type="datetime-local"]:focus,
+textarea:focus,
+select:focus,
+.form-control:focus {
+    border-color: var(--ms-primary) !important;
+    box-shadow: 0 0 0 2px rgba(74, 111, 165, 0.12) !important;
+    outline: none !important;
+}
+
+input::placeholder,
+textarea::placeholder,
+.form-control::placeholder {
+    color: var(--ms-text-tertiary) !important;
+}
+
+label,
+.control-label,
+.col-form-label {
+    font-family: 'Inter', sans-serif !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    color: var(--ms-text-secondary) !important;
+    margin-bottom: 5px !important;
+}
+
+fieldset {
+    border: 1px solid var(--ms-border) !important;
+    border-radius: var(--ms-radius) !important;
+    padding: 16px !important;
+    background: var(--ms-surface-card) !important;
+}
+
+legend {
+    font-family: 'Inter', sans-serif !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: var(--ms-text-secondary) !important;
+    padding: 0 8px !important;
+    width: auto !important;
+    border: none !important;
+}
+
+/* ══════════════════════════════════════
+   BUTTONS
+   ══════════════════════════════════════ */
+.btn,
+button,
+input[type="submit"],
+input[type="button"],
+input[type="reset"] {
+    font-family: 'Inter', sans-serif !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    border-radius: var(--ms-radius-sm) !important;
+    transition: all var(--ms-transition) !important;
+    cursor: pointer !important;
+    line-height: 1.4 !important;
+    padding: 7px 16px !important;
+}
+
+/* Primary buttons */
+.btn-primary,
+.btn-default,
+.btn-add,
+.btn-search,
+.btn-save,
+.btn-transmit,
+.btn-submit,
+button.btn-primary,
+input[type="submit"],
+a.btn-primary {
+    background: var(--ms-header-bg) !important;
+    background-color: var(--ms-header-bg) !important;
+    color: #fff !important;
+    border: 1px solid var(--ms-primary-600) !important;
+}
+
+.btn-primary:hover,
+.btn-default:hover,
+.btn-add:hover,
+.btn-search:hover,
+.btn-save:hover,
+.btn-transmit:hover,
+.btn-submit:hover,
+button.btn-primary:hover,
+input[type="submit"]:hover,
+a.btn-primary:hover {
+    background: var(--ms-primary-600) !important;
+    background-color: var(--ms-primary-600) !important;
+    border-color: var(--ms-primary-700) !important;
+    color: #fff !important;
+    box-shadow: var(--ms-shadow-sm) !important;
+}
+
+.btn-primary:focus,
+.btn-default:focus,
+input[type="submit"]:focus {
+    box-shadow: 0 0 0 2px rgba(74, 111, 165, 0.25) !important;
+    outline: none !important;
+}
+
+/* Secondary/outline buttons */
+.btn-secondary,
+.btn-cancel {
+    background: var(--ms-surface-card) !important;
+    color: var(--ms-primary) !important;
+    border: 1px solid var(--ms-border) !important;
+}
+
+.btn-secondary:hover,
+.btn-cancel:hover {
+    background: var(--ms-surface) !important;
+    border-color: var(--ms-primary) !important;
+    color: var(--ms-primary) !important;
+}
+
+/* Danger buttons */
+.btn-danger,
+.btn-delete {
+    background: var(--ms-error) !important;
+    color: #fff !important;
+    border: 1px solid var(--ms-error) !important;
+}
+
+.btn-danger:hover,
+.btn-delete:hover {
+    opacity: 0.9 !important;
+}
+
+/* Success buttons */
+.btn-success {
+    background: var(--ms-success) !important;
+    color: #fff !important;
+    border: 1px solid var(--ms-success) !important;
+}
+
+.btn-success:hover {
+    opacity: 0.9 !important;
+}
+
+/* Link-style buttons */
+.btn-link {
+    color: var(--ms-text-link) !important;
+    text-decoration: none !important;
+    background: transparent !important;
+    border: none !important;
+}
+
+.btn-link:hover {
+    color: var(--ms-primary-700) !important;
+    text-decoration: underline !important;
+}
+
+/* Button groups */
+.btn-group .btn {
+    border-radius: 0 !important;
+}
+
+.btn-group .btn:first-child {
+    border-radius: var(--ms-radius-sm) 0 0 var(--ms-radius-sm) !important;
+}
+
+.btn-group .btn:last-child {
+    border-radius: 0 var(--ms-radius-sm) var(--ms-radius-sm) 0 !important;
+}
+
+/* ══════════════════════════════════════
+   TABLES
+   ══════════════════════════════════════ */
+table,
+.table {
+    font-family: 'Inter', sans-serif !important;
+    font-size: 13px !important;
+    border-collapse: collapse !important;
+    width: 100% !important;
+}
+
+.table > thead > tr > th,
+.table > thead > tr > td,
+table > thead > tr > th,
+.showborder th,
+.heading {
+    font-family: 'Inter', sans-serif !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.06em !important;
+    color: var(--ms-text-tertiary) !important;
+    background: var(--ms-surface) !important;
+    border-bottom: 1px solid var(--ms-border) !important;
+    padding: 10px 16px !important;
+}
+
+.table > tbody > tr > td,
+table > tbody > tr > td,
+.showborder td {
+    padding: 10px 16px !important;
+    border-bottom: 1px solid var(--ms-border-light) !important;
+    color: var(--ms-text-secondary) !important;
+    vertical-align: middle !important;
+}
+
+.table > tbody > tr:hover > td,
+table > tbody > tr:hover > td,
+.showborder tr:hover td {
+    background: var(--ms-surface-hover) !important;
+}
+
+/* Striped rows — use subtle Med-SEAL tones */
+.table-striped > tbody > tr:nth-of-type(odd) > td,
+.table-striped > tbody > tr:nth-of-type(odd) > th {
+    background: var(--ms-surface) !important;
+}
+
+/* ══════════════════════════════════════
+   PANELS & CARDS
+   ══════════════════════════════════════ */
+.panel,
+.card,
+.well {
+    background: var(--ms-surface-card) !important;
+    border: 1px solid var(--ms-border) !important;
+    border-radius: var(--ms-radius) !important;
+    box-shadow: var(--ms-shadow-sm) !important;
+}
+
+.panel-heading,
+.card-header {
+    background: var(--ms-surface) !important;
+    border-bottom: 1px solid var(--ms-border) !important;
+    padding: 12px 16px !important;
+    font-family: 'Inter', sans-serif !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    color: var(--ms-text-primary) !important;
+    border-radius: var(--ms-radius) var(--ms-radius) 0 0 !important;
+}
+
+.panel-body,
+.card-body {
+    padding: 16px !important;
+}
+
+.panel-footer,
+.card-footer {
+    background: var(--ms-surface) !important;
+    border-top: 1px solid var(--ms-border) !important;
+    padding: 10px 16px !important;
+}
+
+.panel-default {
+    border-color: var(--ms-border) !important;
+}
+
+.panel-default > .panel-heading {
+    color: var(--ms-text-primary) !important;
+    background-color: var(--ms-surface) !important;
+    border-color: var(--ms-border) !important;
+}
+
+/* ══════════════════════════════════════
+   ALERTS & BADGES
+   ══════════════════════════════════════ */
+.alert {
+    font-family: 'Inter', sans-serif !important;
+    border-radius: var(--ms-radius) !important;
+    font-size: 13px !important;
+    padding: 12px 16px !important;
+}
+
+.alert-success {
+    background: var(--ms-success-bg) !important;
+    border-color: #b8dcc5 !important;
+    color: var(--ms-success) !important;
+}
+
+.alert-danger,
+.alert-error {
+    background: var(--ms-error-bg) !important;
+    border-color: #e8b0b0 !important;
+    color: var(--ms-error) !important;
+}
+
+.alert-warning {
+    background: var(--ms-warning-bg) !important;
+    border-color: #e8d5a0 !important;
+    color: var(--ms-warning) !important;
+}
+
+.alert-info {
+    background: var(--ms-primary-50) !important;
+    border-color: var(--ms-primary-200) !important;
+    color: var(--ms-primary) !important;
+}
+
+.badge,
+.label {
+    font-family: 'Inter', sans-serif !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    border-radius: 3px !important;
+    padding: 2px 8px !important;
+}
+
+.badge-primary,
+.label-primary {
+    background: var(--ms-primary) !important;
+}
+
+.badge-success,
+.label-success {
+    background: var(--ms-success) !important;
+}
+
+.badge-danger,
+.label-danger {
+    background: var(--ms-error) !important;
+}
+
+.badge-warning,
+.label-warning {
+    background: var(--ms-warning) !important;
+}
+
+/* ══════════════════════════════════════
+   LINKS
+   ══════════════════════════════════════ */
+a {
+    color: var(--ms-text-link) !important;
+    text-decoration: none !important;
+    transition: color var(--ms-transition) !important;
+}
+
+a:hover,
+a:focus {
+    color: var(--ms-primary-700) !important;
+    text-decoration: none !important;
+}
+
+/* ══════════════════════════════════════
+   MODALS & DIALOGS
+   ══════════════════════════════════════ */
+.modal-content {
+    background: var(--ms-surface-card) !important;
+    border: 1px solid var(--ms-border) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15) !important;
+}
+
+.modal-header {
+    border-bottom: 1px solid var(--ms-border) !important;
+    padding: 16px 20px !important;
+    background: var(--ms-surface) !important;
+    border-radius: 12px 12px 0 0 !important;
+}
+
+.modal-header .modal-title,
+.modal-title {
+    font-family: 'Inter', sans-serif !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    color: var(--ms-text-primary) !important;
+}
+
+.modal-body {
+    padding: 20px !important;
+    font-family: 'Inter', sans-serif !important;
+}
+
+.modal-footer {
+    border-top: 1px solid var(--ms-border) !important;
+    padding: 14px 20px !important;
+    background: var(--ms-surface) !important;
+    border-radius: 0 0 12px 12px !important;
+}
+
+/* ══════════════════════════════════════
+   MAIN CONTENT AREA
+   ══════════════════════════════════════ */
+#mainBox,
+.body_top,
+.body_title,
+.mainFrameSticky,
+#framesDisplay,
+.container-fluid,
+.main,
+.mainFrame,
+#mainFrames_div {
+    background: var(--ms-body-bg) !important;
+    font-family: 'Inter', sans-serif !important;
+}
+
+/* Iframes might have their own body — target them via class hooks */
+.body_top {
+    padding: 16px 20px !important;
+}
+
+/* ══════════════════════════════════════
+   OpenEMR SPECIFIC ELEMENTS
+   ══════════════════════════════════════ */
+
+/* Title bars within pages */
+.oe-page-heading,
+.oe-text-to-right,
+.form_title {
+    font-family: 'Inter', sans-serif !important;
+    font-weight: 700 !important;
+    color: var(--ms-text-primary) !important;
+}
+
+/* OpenEMR forms */
+.oe-custom-line,
+.form-group,
+.formRow {
+    margin-bottom: 12px !important;
+}
+
+/* Calendar header override */
+.fc .fc-toolbar {
+    font-family: 'Inter', sans-serif !important;
+}
+
+.fc .fc-button {
+    background: var(--ms-header-bg) !important;
+    border-color: var(--ms-primary-600) !important;
+    color: #fff !important;
+    font-family: 'Inter', sans-serif !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    border-radius: var(--ms-radius-sm) !important;
+    padding: 6px 14px !important;
+    transition: all var(--ms-transition) !important;
+}
+
+.fc .fc-button:hover {
+    background: var(--ms-primary-600) !important;
+}
+
+.fc .fc-button-active,
+.fc .fc-button.fc-state-active {
+    background: var(--ms-primary-700) !important;
+    border-color: var(--ms-primary-700) !important;
+}
+
+.fc th {
+    font-family: 'Inter', sans-serif !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.06em !important;
+    color: var(--ms-text-tertiary) !important;
+    background: var(--ms-surface) !important;
+    padding: 8px !important;
+}
+
+.fc td {
+    border-color: var(--ms-border-light) !important;
+}
+
+.fc .fc-today {
+    background: var(--ms-primary-50) !important;
+}
+
+/* ══════════════════════════════════════
+   SCROLLBARS (Webkit)
+   ══════════════════════════════════════ */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--ms-border-hover);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--ms-text-tertiary);
+}
+
+/* ══════════════════════════════════════
+   PAGINATION
+   ══════════════════════════════════════ */
+.pagination > li > a,
+.pagination > li > span {
+    color: var(--ms-text-secondary) !important;
+    border: 1px solid var(--ms-border) !important;
+    background: var(--ms-surface-card) !important;
+    font-family: 'Inter', sans-serif !important;
+    font-size: 12px !important;
+    transition: all var(--ms-transition) !important;
+}
+
+.pagination > li > a:hover {
+    background: var(--ms-primary-50) !important;
+    border-color: var(--ms-primary) !important;
+    color: var(--ms-primary) !important;
+}
+
+.pagination > .active > a,
+.pagination > .active > span {
+    background: var(--ms-primary) !important;
+    border-color: var(--ms-primary) !important;
+    color: #fff !important;
+}
+
+/* ══════════════════════════════════════
+   BREADCRUMBS
+   ══════════════════════════════════════ */
+.breadcrumb {
+    background: var(--ms-surface) !important;
+    border-radius: var(--ms-radius-sm) !important;
+    font-family: 'Inter', sans-serif !important;
+    font-size: 12px !important;
+    padding: 8px 14px !important;
+}
+
+.breadcrumb > li + li:before {
+    color: var(--ms-text-tertiary) !important;
+    content: "›" !important;
+}
+
+.breadcrumb > .active {
+    color: var(--ms-text-tertiary) !important;
+}
+
+/* ══════════════════════════════════════
+   TOOLTIP & POPOVERS
+   ══════════════════════════════════════ */
+.tooltip-inner {
+    font-family: 'Inter', sans-serif !important;
+    font-size: 12px !important;
+    background: var(--ms-text-primary) !important;
+    border-radius: var(--ms-radius-sm) !important;
+    padding: 6px 10px !important;
+}
+
+.popover {
+    font-family: 'Inter', sans-serif !important;
+    border: 1px solid var(--ms-border) !important;
+    border-radius: var(--ms-radius) !important;
+    box-shadow: var(--ms-shadow-md) !important;
+}
+
+/* ══════════════════════════════════════
+   LIST GROUPS
+   ══════════════════════════════════════ */
+.list-group-item {
+    border-color: var(--ms-border-light) !important;
+    font-family: 'Inter', sans-serif !important;
+    padding: 10px 16px !important;
+    transition: all var(--ms-transition) !important;
+}
+
+.list-group-item:hover {
+    background: var(--ms-surface-hover) !important;
+}
+
+.list-group-item.active,
+.list-group-item.active:hover {
+    background: var(--ms-primary) !important;
+    border-color: var(--ms-primary) !important;
+}
+
+/* ══════════════════════════════════════
+   DROPDOWN MENUS
+   ══════════════════════════════════════ */
+.dropdown-menu {
+    background: var(--ms-surface-card) !important;
+    border: 1px solid var(--ms-border) !important;
+    border-radius: var(--ms-radius) !important;
+    box-shadow: var(--ms-shadow-md) !important;
+    padding: 6px !important;
+    font-family: 'Inter', sans-serif !important;
+}
+
+.dropdown-menu > li > a,
+.dropdown-item {
+    font-size: 13px !important;
+    color: var(--ms-text-secondary) !important;
+    padding: 8px 14px !important;
+    border-radius: var(--ms-radius-sm) !important;
+    transition: all var(--ms-transition) !important;
+}
+
+.dropdown-menu > li > a:hover,
+.dropdown-item:hover {
+    background: var(--ms-primary-50) !important;
+    color: var(--ms-primary) !important;
+}
+
+/* ══════════════════════════════════════
+   CHECKBOXES & RADIOS
+   ══════════════════════════════════════ */
+input[type="checkbox"],
+input[type="radio"] {
+    accent-color: var(--ms-primary) !important;
+}
+
+/* ══════════════════════════════════════
+   MISC / UTILITY
+   ══════════════════════════════════════ */
+hr {
+    border-color: var(--ms-border-light) !important;
+}
+
+code, pre {
+    font-family: 'SFMono-Regular', 'Cascadia Mono', 'Fira Code', monospace !important;
+    font-size: 12px !important;
+}
+
+::selection {
+    background: var(--ms-primary-200) !important;
+    color: var(--ms-text-primary) !important;
+}
+
+/* Disabled state */
+.btn:disabled,
+button:disabled,
+input:disabled,
+select:disabled,
+textarea:disabled {
+    opacity: 0.6 !important;
+    cursor: not-allowed !important;
+}
+
+/* Focus outline for accessibility */
+*:focus-visible {
+    outline: 2px solid var(--ms-primary-200) !important;
+    outline-offset: 2px !important;
+}
+
+/* Fix dropdown height - all selects */
+select,select.form-control,form select,fieldset select,td select,div select,.form-group select,body select{height:34px!important;line-height:22px!important;padding:5px 24px 5px 8px!important;appearance:menulist!important;-webkit-appearance:menulist!important}
+select[multiple],select[size]:not([size="1"]){height:auto!important;min-height:80px!important;appearance:listbox!important;-webkit-appearance:listbox!important}

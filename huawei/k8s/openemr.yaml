@@ -1,0 +1,145 @@
+# ==============================================================================
+# OpenEMR Deployment — Huawei Cloud CCE
+# Connects to: RDS MySQL (update MYSQL_HOST with private IP)
+# ==============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: openemr
+  namespace: medseal
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: openemr
+  template:
+    metadata:
+      labels:
+        app: openemr
+    spec:
+      containers:
+      - name: openemr
+        image: openemr/openemr:7.0.2
+        command:
+        - sh
+        - -c
+        - |
+          cat > /var/www/localhost/htdocs/openemr/sites/default/sqlconf.php << 'PHPEOF'
+          <?php
+          global $disable_utf8_flag;
+          $disable_utf8_flag = false;
+          $host   = 'MYSQL_HOST_PLACEHOLDER';
+          $port   = '3306';
+          $login  = 'openemr';
+          $pass   = 'OPENEMR_PASS_PLACEHOLDER';
+          $dbase  = 'openemr';
+          $db_encoding = 'utf8mb4';
+          $sqlconf = array();
+          global $sqlconf;
+          $sqlconf["host"]= $host;
+          $sqlconf["port"] = $port;
+          $sqlconf["login"] = $login;
+          $sqlconf["pass"] = $pass;
+          $sqlconf["dbase"] = $dbase;
+          $sqlconf["db_encoding"] = $db_encoding;
+          $config = 1;
+          PHPEOF
+          sed -i "s/MYSQL_HOST_PLACEHOLDER/$MYSQL_HOST/" /var/www/localhost/htdocs/openemr/sites/default/sqlconf.php
+          sed -i "s/OPENEMR_PASS_PLACEHOLDER/$MYSQL_PASS/" /var/www/localhost/htdocs/openemr/sites/default/sqlconf.php
+          chown apache:apache /var/www/localhost/htdocs/openemr/sites/default/sqlconf.php
+          chmod 444 /var/www/localhost/htdocs/openemr/sites/default/sqlconf.php
+          cat > /var/www/localhost/htdocs/openemr/interface/logout.php << 'LOGOUTEOF'
+          <?php
+          session_start();
+          $_SESSION = array();
+          if (ini_get('session.use_cookies')) {
+              $params = session_get_cookie_params();
+              setcookie(session_name(), '', time() - 42000,
+                  $params['path'], $params['domain'],
+                  $params['secure'], $params['httponly']
+              );
+          }
+          session_destroy();
+          ?>
+          <!DOCTYPE html>
+          <html><head><title>Logging out...</title></head>
+          <body>
+          <script>window.top.location.href = "http://app.medseal.ELB_IP_PLACEHOLDER.nip.io";</script>
+          </body></html>
+          LOGOUTEOF
+          cat > /var/www/localhost/htdocs/openemr/interface/login/login.php << 'LOGINEOF'
+          <?php
+          header('Location: http://app.medseal.ELB_IP_PLACEHOLDER.nip.io');
+          exit;
+          LOGINEOF
+          echo '<?php http_response_code(200); echo "ok";' > /var/www/localhost/htdocs/openemr/healthz.php
+          (while ! pgrep httpd > /dev/null 2>&1; do sleep 2; done; sleep 8; \
+           cp /tmp/medseal-css/medseal-theme.css /var/www/localhost/htdocs/openemr/public/themes/medseal-theme.css; \
+           cp /tmp/medseal-css/ai-chat-nav.js /var/www/localhost/htdocs/openemr/public/assets/ai-chat-nav.js; \
+           cp /tmp/medseal-css/medseal_chat.php /var/www/localhost/htdocs/openemr/interface/main/medseal_chat.php; \
+           cp /tmp/medseal-css/medseal_chat_api.php /var/www/localhost/htdocs/openemr/interface/main/medseal_chat_api.php; \
+           grep -q 'medseal-theme.css' /var/www/localhost/htdocs/openemr/src/Core/Header.php || \
+             sed -i '/setupAssets(\$assets, true, false);/a\        $output .= "<link rel=\\\"stylesheet\\\" href=\\\"/public/themes/medseal-theme.css\\\" />\n";' /var/www/localhost/htdocs/openemr/src/Core/Header.php; \
+           grep -q 'ai-chat-nav.js' /var/www/localhost/htdocs/openemr/src/Core/Header.php || \
+             sed -i '/medseal-theme.css/a\        $output .= "<script src=\\\"/public/assets/ai-chat-nav.js\\\"></script>\n";' /var/www/localhost/htdocs/openemr/src/Core/Header.php; \
+           chown apache:apache /var/www/localhost/htdocs/openemr/public/assets/ai-chat-nav.js /var/www/localhost/htdocs/openemr/interface/main/medseal_chat.php /var/www/localhost/htdocs/openemr/interface/main/medseal_chat_api.php 2>/dev/null; \
+           chmod 444 /var/www/localhost/htdocs/openemr/healthz.php /var/www/localhost/htdocs/openemr/public/themes/medseal-theme.css /var/www/localhost/htdocs/openemr/src/Core/Header.php /var/www/localhost/htdocs/openemr/public/assets/ai-chat-nav.js /var/www/localhost/htdocs/openemr/interface/main/medseal_chat.php /var/www/localhost/htdocs/openemr/interface/main/medseal_chat_api.php; \
+           echo "[Med-SEAL] Custom files injected successfully") &
+          exec ./openemr.sh
+        resources:
+          requests:
+            cpu: 250m
+            memory: 512Mi
+            ephemeral-storage: 2Gi
+          limits:
+            ephemeral-storage: 2Gi
+        ports:
+        - containerPort: 80
+        readinessProbe:
+          tcpSocket:
+            port: 80
+        env:
+        - name: MYSQL_HOST
+          value: "REPLACE_WITH_RDS_MYSQL_IP"    # ← Update after databases.sh
+        - name: MYSQL_USER
+          value: "openemr"
+        - name: MYSQL_DATABASE
+          value: "openemr"
+        - name: MYSQL_PASS
+          valueFrom:
+            secretKeyRef:
+              name: openemr-db-pass
+              key: password
+        - name: MYSQL_ROOT_PASS
+          valueFrom:
+            secretKeyRef:
+              name: openemr-db-pass
+              key: password
+        - name: OE_USER
+          value: "admin"
+        - name: OE_PASS
+          value: "pass"
+        volumeMounts:
+        - name: openemr-logs
+          mountPath: /var/www/logs
+        - name: medseal-theme
+          mountPath: /tmp/medseal-css
+      volumes:
+      - name: openemr-logs
+        emptyDir: {}
+      - name: medseal-theme
+        configMap:
+          name: medseal-theme-css
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: openemr
+  namespace: medseal
+spec:
+  type: ClusterIP
+  selector:
+    app: openemr
+  ports:
+  - port: 80
+    targetPort: 80

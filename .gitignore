@@ -1,0 +1,16 @@
+node_modules/
+.next/
+build/
+dist/
+.expo/
+*.xcodeproj/xcuserdata/
+DerivedData/
+__pycache__/
+.venv/
+*.pyc
+.env
+.env.local
+*.jar
+scripts/output/
+*.log
+.DS_Store
