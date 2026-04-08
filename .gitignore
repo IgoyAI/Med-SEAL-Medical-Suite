@@ -14,3 +14,17 @@ __pycache__/
 scripts/output/
 *.log
 .DS_Store
+
+# Secrets — never commit
+gateway/certs/privkey.pem
+gateway/certs/fullchain.pem
+*.pem
+
+# Non-production artifacts
+medplum-config-nip.json
+medplum-config-patched.json
+medseal_architecture_*.png
+medseal_infographic_*.png
+medseal_comprehensive_presentation.md
+generate_*.py
+hcloud_install.sh

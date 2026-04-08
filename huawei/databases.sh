@@ -75,7 +75,7 @@ hcloud RDS CreateInstance \
   --vpc_id="${VPC_ID}" \
   --subnet_id="${SUBNET_ID}" \
   --security_group_id="${SG_ID}" \
-  --password="MedSeal2026!" \
+  --password="${RDS_PASSWORD:?Set RDS_PASSWORD env var}" \
   --region="${REGION}" \
   2>/dev/null || echo "   Check console if error"
 
@@ -97,7 +97,7 @@ hcloud RDS CreateInstance \
   --vpc_id="${VPC_ID}" \
   --subnet_id="${SUBNET_ID}" \
   --security_group_id="${SG_ID}" \
-  --password="MedSeal2026!" \
+  --password="${RDS_PASSWORD:?Set RDS_PASSWORD env var}" \
   --region="${REGION}" \
   2>/dev/null || echo "   Check console if error"
 
@@ -131,5 +131,5 @@ echo ""
 echo "Update k8s/ manifests with the private IPs."
 echo ""
 echo "Default passwords:"
-echo "  MySQL/PG root: MedSeal2026!"
+echo "  MySQL/PG root: <set via RDS_PASSWORD>"
 echo "  Redis: no password (VPC internal)"

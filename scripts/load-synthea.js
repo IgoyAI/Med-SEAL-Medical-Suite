@@ -21,7 +21,7 @@ async function getAccessToken() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             email: process.env.MEDPLUM_EMAIL || 'admin@example.com',
-            password: process.env.MEDPLUM_PASSWORD || 'medplum_admin',
+            password: process.env.MEDPLUM_PASSWORD || 'changeme',
             scope: 'openid fhirUser',
             codeChallengeMethod: 'plain',
             codeChallenge: codeVerifier,

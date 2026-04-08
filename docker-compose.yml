@@ -75,7 +75,7 @@ services:
     environment:
       POSTGRES_DB: medplum
       POSTGRES_USER: medplum
-      POSTGRES_PASSWORD: medplum
+      POSTGRES_PASSWORD: ${MEDPLUM_DB_PASSWORD:-changeme}
     volumes:
       - medplum-db-data:/var/lib/postgresql/data
     ports:
@@ -147,10 +147,10 @@ services:
     image: mariadb:10.11
     container_name: medseal-openemr-db
     environment:
-      MARIADB_ROOT_PASSWORD: root
+      MARIADB_ROOT_PASSWORD: ${OPENEMR_DB_ROOT_PASSWORD:-changeme}
       MARIADB_DATABASE: openemr
       MARIADB_USER: openemr
-      MARIADB_PASSWORD: openemr
+      MARIADB_PASSWORD: ${OPENEMR_DB_PASSWORD:-changeme}
     volumes:
       - openemr-db-data:/var/lib/mysql
     ports:
@@ -176,12 +176,12 @@ services:
         condition: service_healthy
     environment:
       MYSQL_HOST: openemr-db
-      MYSQL_ROOT_PASS: root
+      MYSQL_ROOT_PASS: ${OPENEMR_DB_ROOT_PASSWORD:-changeme}
       MYSQL_USER: openemr
-      MYSQL_PASS: openemr
+      MYSQL_PASS: ${OPENEMR_DB_PASSWORD:-changeme}
       MYSQL_DATABASE: openemr
       OE_USER: admin
-      OE_PASS: pass
+      OE_PASS: ${OPENEMR_ADMIN_PASSWORD:-changeme}
     volumes:
       - openemr-sites:/var/www/localhost/htdocs/openemr/sites
       - openemr-logs:/var/log
@@ -221,7 +221,7 @@ services:
     environment:
       POSTGRES_DB: medseal_sso
       POSTGRES_USER: sso
-      POSTGRES_PASSWORD: sso_secret
+      POSTGRES_PASSWORD: ${SSO_DB_PASSWORD:-changeme}
     volumes:
       - sso-db-data:/var/lib/postgresql/data
     ports:
@@ -260,12 +260,12 @@ services:
       AI_SERVICE_PORT: "4003"
       AUDIT_DATA_DIR: /data
       # SSO Database
-      SSO_DB_URL: postgres://sso:sso_secret@sso-db:5432/medseal_sso
+      SSO_DB_URL: postgres://sso:${SSO_DB_PASSWORD:-changeme}@sso-db:5432/medseal_sso
       # OpenEMR MySQL Database
       OPENEMR_DB_HOST: openemr-db
       OPENEMR_DB_PORT: "3306"
       OPENEMR_DB_USER: openemr
-      OPENEMR_DB_PASS: openemr
+      OPENEMR_DB_PASS: ${OPENEMR_DB_PASSWORD:-changeme}
       OPENEMR_DB_NAME: openemr
       # SSO — OpenEMR external URL for browser redirect
       OPENEMR_EXTERNAL_URL: https://emr.med-seal.org
@@ -275,7 +275,7 @@ services:
       AGENT_BASE_URL: http://172.17.0.1:8000
       # Internal service URLs (within Docker network)
       MEDPLUM_BASE_URL: http://medplum-server:8103
-      ORTHANC_URL: http://admin:pass@orthanc:8042
+      ORTHANC_URL: http://admin:${ORTHANC_PASSWORD:-changeme}@orthanc:8042
     volumes:
       - audit-data:/data
     restart: unless-stopped

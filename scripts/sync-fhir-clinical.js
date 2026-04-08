@@ -110,7 +110,7 @@ async function syncResourceType(token, pool, patMap, config) {
 
     const pool = mysql.createPool({
         host: 'localhost', port: 3307,
-        user: 'openemr', password: 'openemr', database: 'openemr',
+        user: 'openemr', password: process.env.OPENEMR_DB_PASS || 'changeme', database: 'openemr',
     });
 
     // Clear old synced lists data (keep original 57)

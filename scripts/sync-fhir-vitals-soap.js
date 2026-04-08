@@ -54,7 +54,7 @@ const VITAL_CODES = {
     let token = await getToken();
     const pool = mysql.createPool({
         host: 'localhost', port: 3307,
-        user: 'openemr', password: 'openemr', database: 'openemr',
+        user: 'openemr', password: process.env.OPENEMR_DB_PASS || 'changeme', database: 'openemr',
     });
     const patMap = await buildPatientMap(token);
     token = await getToken();

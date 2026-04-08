@@ -1,9 +1,9 @@
 #!/bin/bash
 # ============================================================
 # Med-SEAL Deployment Script for Huawei Cloud ECS
-# Run this ON the ECS instance (119.13.90.82) as root
+# Run this ON the ECS instance as root
 #
-# SSH in:  ssh root@119.13.90.82  (password: MedSeal@2026!)
+# SSH in:  ssh root@<ECS_IP>
 # Then:    bash deploy_huawei.sh
 # ============================================================
 set -e
@@ -37,7 +37,7 @@ if [ ! -f "/opt/Med-SEAL/agent/main.py" ]; then
     echo ""
     echo "ERROR: Agent code not found at /opt/Med-SEAL/agent/main.py"
     echo "Please copy the code first:"
-    echo "  scp -r agent/ requirements.txt Dockerfile root@119.13.90.82:/opt/Med-SEAL/"
+    echo "  scp -r agent/ requirements.txt Dockerfile root@<ECS_IP>:/opt/Med-SEAL/"
     echo ""
     exit 1
 fi
@@ -85,9 +85,9 @@ docker run -d \
 echo ""
 echo "============================================"
 echo " Med-SEAL Agent deployed successfully!"
-echo " URL: http://119.13.90.82:8000"
-echo " Docs: http://119.13.90.82:8000/docs"
-echo " Health: http://119.13.90.82:8000/health"
+echo " URL: http://<ECS_IP>:8000"
+echo " Docs: http://<ECS_IP>:8000/docs"
+echo " Health: http://<ECS_IP>:8000/health"
 echo "============================================"
 echo ""
 docker logs -f medseal-agent

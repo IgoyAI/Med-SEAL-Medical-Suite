@@ -61,13 +61,13 @@ function initPools() {
     host:     process.env.OPENEMR_DB_HOST || 'openemr-db',
     port:     parseInt(process.env.OPENEMR_DB_PORT || '3306'),
     user:     process.env.OPENEMR_DB_USER || 'openemr',
-    password: process.env.OPENEMR_DB_PASS || 'openemr',
+    password: process.env.OPENEMR_DB_PASS || 'changeme',
     database: process.env.OPENEMR_DB_NAME || 'openemr',
     waitForConnections: true,
     connectionLimit: 5,
   });
   ssoPool = new Pool({
-    connectionString: process.env.SSO_DB_URL || 'postgres://sso:sso_secret@sso-db:5432/medseal_sso',
+    connectionString: process.env.SSO_DB_URL || 'postgres://sso:changeme@sso-db:5432/medseal_sso',
     max: 5,
     idleTimeoutMillis: 30000,
   });
