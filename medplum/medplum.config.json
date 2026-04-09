@@ -14,7 +14,7 @@
         "host": "medplum-db",
         "port": 5432,
         "username": "medplum",
-        "password": "medplum"
+        "password": "changeme"
     },
     "redis": {
         "host": "medplum-redis",
