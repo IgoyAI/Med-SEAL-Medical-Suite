@@ -18,6 +18,41 @@ app.use(express.json({ limit: '10mb' }));
 
 const PORT = parseInt(process.env.PORT || '4003');
 
+// ===== Medplum FHIR Token Cache =====
+let _medplumToken: string | null = null;
+let _medplumTokenExp = 0;
+
+async function getMedplumToken(): Promise<string> {
+    if (_medplumToken && Date.now() < _medplumTokenExp) return _medplumToken;
+
+    const base = process.env.MEDPLUM_BASE_URL || 'http://medplum-server:8103';
+    const email = process.env.MEDPLUM_EMAIL || 'admin@example.com';
+    const password = process.env.MEDPLUM_PASSWORD || 'changeme';
+    const cv = 'medseal-' + Date.now();
+
+    const loginRes = await fetch(`${base}/auth/login`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            email, password,
+            scope: 'openid fhirUser', codeChallengeMethod: 'plain', codeChallenge: cv,
+        }),
+    });
+    if (!loginRes.ok) throw new Error(`Medplum login failed: ${loginRes.status}`);
+    const { code } = await loginRes.json() as any;
+
+    const tokRes = await fetch(`${base}/oauth2/token`, {
+        method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `grant_type=authorization_code&code=${code}&code_verifier=${cv}`,
+    });
+    if (!tokRes.ok) throw new Error(`Medplum token exchange failed: ${tokRes.status}`);
+    const tok = await tokRes.json() as any;
+
+    _medplumToken = tok.access_token;
+    // Cache for 50 minutes (tokens typically expire in 60 min)
+    _medplumTokenExp = Date.now() + 50 * 60 * 1000;
+    return _medplumToken!;
+}
+
 // ===== Health Check =====
 app.get('/health', (_, res) => {
     const config = getLLMConfig();
@@ -723,22 +758,7 @@ app.post('/api/appointments/writeback', async (req, res) => {
 app.post('/api/admin/sync-appointments', async (req, res) => {
     try {
         const medplumBase = process.env.MEDPLUM_BASE_URL || 'http://medplum-server:8103';
-
-        // Authenticate with Medplum
-        const cv = 'sync-appt-' + Date.now();
-        const loginRes = await fetch(`${medplumBase}/auth/login`, {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                email: 'admin@example.com', password: 'medplum_admin',
-                scope: 'openid fhirUser', codeChallengeMethod: 'plain', codeChallenge: cv
-            }),
-        });
-        const { code } = await loginRes.json() as any;
-        const tokRes = await fetch(`${medplumBase}/oauth2/token`, {
-            method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `grant_type=authorization_code&code=${code}&code_verifier=${cv}`,
-        });
-        const { access_token } = await tokRes.json() as any;
+        const access_token = await getMedplumToken();
 
         // Run sync
         const result = await syncAppointmentsToFHIR(medplumBase, access_token);
@@ -1049,22 +1069,7 @@ app.get('/api/cdss/patients', async (req, res) => {
         if (!query) return res.status(400).json({ error: 'q query param required' });
 
         const medplumBase = process.env.MEDPLUM_BASE_URL || 'http://medplum-server:8103';
-
-        // Authenticate with Medplum
-        const cv = 'cdss-search-' + Date.now();
-        const loginRes = await fetch(`${medplumBase}/auth/login`, {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                email: 'admin@example.com', password: 'medplum_admin',
-                scope: 'openid fhirUser', codeChallengeMethod: 'plain', codeChallenge: cv
-            }),
-        });
-        const { code } = await loginRes.json() as any;
-        const tokRes = await fetch(`${medplumBase}/oauth2/token`, {
-            method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `grant_type=authorization_code&code=${code}&code_verifier=${cv}`,
-        });
-        const { access_token } = await tokRes.json() as any;
+        const access_token = await getMedplumToken();
 
         // Search patients
         const searchRes = await fetch(
@@ -1097,22 +1102,7 @@ app.get('/api/cdss/patients/:id', async (req, res) => {
     try {
         const patientId = req.params.id;
         const medplumBase = process.env.MEDPLUM_BASE_URL || 'http://medplum-server:8103';
-
-        // Authenticate with Medplum
-        const cv = 'cdss-patient-' + Date.now();
-        const loginRes = await fetch(`${medplumBase}/auth/login`, {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                email: 'admin@example.com', password: 'medplum_admin',
-                scope: 'openid fhirUser', codeChallengeMethod: 'plain', codeChallenge: cv
-            }),
-        });
-        const { code } = await loginRes.json() as any;
-        const tokRes = await fetch(`${medplumBase}/oauth2/token`, {
-            method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `grant_type=authorization_code&code=${code}&code_verifier=${cv}`,
-        });
-        const { access_token } = await tokRes.json() as any;
+        const access_token = await getMedplumToken();
 
         const headers = { Authorization: `Bearer ${access_token}` };
 

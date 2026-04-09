@@ -221,6 +221,8 @@ services:
       AGENT_BASE_URL: http://172.17.0.1:8000
       # Internal service URLs (within Docker network)
       MEDPLUM_BASE_URL: http://medplum-server:8103
+      MEDPLUM_EMAIL: ${MEDPLUM_EMAIL:-admin@example.com}
+      MEDPLUM_PASSWORD: ${MEDPLUM_PASSWORD:-changeme}
     volumes:
       - audit-data:/data
     restart: unless-stopped
