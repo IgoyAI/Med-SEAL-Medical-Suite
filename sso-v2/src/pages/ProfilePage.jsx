@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { API } from '../api';
 import {
   Grid,
   Column,
@@ -37,7 +38,7 @@ export default function ProfilePage({ username }) {
 
   const loadProfile = useCallback(async () => {
     try {
-      const res = await fetch(`/api/users/${username}`);
+      const res = await fetch(`${API}/users/${username}`);
       if (res.ok) {
         const data = await res.json();
         setProfile(data);
@@ -51,7 +52,7 @@ export default function ProfilePage({ username }) {
 
   const saveProfile = async () => {
     try {
-      const res = await fetch(`/api/users/${username}`, {
+      const res = await fetch(`${API}/users/${username}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ displayName, email }),
@@ -71,7 +72,7 @@ export default function ProfilePage({ username }) {
     if (newPwd !== confirmPwd) { notify('warning', 'Warning', 'New passwords do not match'); return; }
     if (newPwd.length < 4) { notify('warning', 'Warning', 'Password must be at least 4 characters'); return; }
     try {
-      const res = await fetch(`/api/users/${username}/password`, {
+      const res = await fetch(`${API}/users/${username}/password`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ currentPassword: curPwd, newPassword: newPwd }),
@@ -88,7 +89,7 @@ export default function ProfilePage({ username }) {
 
   const start2FA = async () => {
     try {
-      const res = await fetch(`/api/users/${username}/2fa/setup`, { method: 'POST' });
+      const res = await fetch(`${API}/users/${username}/2fa/setup`, { method: 'POST' });
       if (res.ok) {
         const data = await res.json();
         setTwoFASecret(data.secret);
@@ -101,7 +102,7 @@ export default function ProfilePage({ username }) {
   const verify2FA = async () => {
     if (twoFACode.length !== 6) { notify('warning', 'Warning', 'Enter a 6-digit code'); return; }
     try {
-      const res = await fetch(`/api/users/${username}/2fa/verify`, {
+      const res = await fetch(`${API}/users/${username}/2fa/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code: twoFACode }),
@@ -119,7 +120,7 @@ export default function ProfilePage({ username }) {
 
   const disable2FA = async () => {
     try {
-      const res = await fetch(`/api/users/${username}/2fa`, { method: 'DELETE' });
+      const res = await fetch(`${API}/users/${username}/2fa`, { method: 'DELETE' });
       if (res.ok) {
         notify('info', 'Disabled', '2FA has been turned off');
         loadProfile();

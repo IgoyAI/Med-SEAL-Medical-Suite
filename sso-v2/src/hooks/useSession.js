@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { API } from '../api';
 
 const SESSION_KEY = 'medseal_session';
 
@@ -21,7 +22,7 @@ export function useSession() {
 
   const logout = useCallback(() => {
     const user = session?.username || 'unknown';
-    fetch('/api/audit', {
+    fetch(`${API}/audit`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ type: 'logout', user, detail: 'Signed out' }),

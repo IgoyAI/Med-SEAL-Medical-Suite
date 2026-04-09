@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { API } from '../api';
 import {
   TextInput,
   PasswordInput,
@@ -33,7 +34,7 @@ export default function LoginPage({ onLogin }) {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch('/api/auth/login', {
+      const res = await fetch(`${API}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: username.trim(), password }),
@@ -65,7 +66,7 @@ export default function LoginPage({ onLogin }) {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch('/api/auth/2fa-verify', {
+      const res = await fetch(`${API}/auth/2fa-verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: pending.username, code: totpCode }),

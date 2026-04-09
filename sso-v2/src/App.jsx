@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
+import { API } from './api';
 import {
   GlobalTheme,
   Header,
@@ -68,7 +69,7 @@ function AppShell() {
 
   useEffect(() => {
     if (!session) return;
-    fetch(`/api/users/${session.username}`)
+    fetch(`${API}/users/${session.username}`)
       .then((r) => r.json())
       .then((d) => setDisplayName(d.displayName || session.username))
       .catch(() => setDisplayName(session.username));

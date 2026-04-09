@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { API } from '../api';
 import {
   Grid,
   Column,
@@ -59,20 +60,20 @@ export default function AdminUsersPage() {
 
   const load = useCallback(async () => {
     try {
-      const res = await fetch('/api/admin/users');
+      const res = await fetch(`${API}/admin/users`);
       if (res.ok) setUsers(await res.json());
     } catch { /* ignore */ }
   }, []);
 
   useEffect(() => { load(); }, [load]);
   useEffect(() => {
-    fetch('/api/facilities').then((r) => r.json()).then(setFacilities).catch(() => {});
+    fetch(`${API}/facilities`).then((r) => r.json()).then(setFacilities).catch(() => {});
   }, []);
 
   const syncOpenEMR = async () => {
     setSyncing(true);
     try {
-      const res = await fetch('/api/admin/sync-openemr', { method: 'POST' });
+      const res = await fetch(`${API}/admin/sync-openemr`, { method: 'POST' });
       const data = await res.json();
       if (res.ok) notify('success', 'Synced', `${data.synced}/${data.total} users to OpenEMR`);
       else notify('error', 'Error', data.error || 'Sync failed');
@@ -104,7 +105,7 @@ export default function AdminUsersPage() {
   const handleCreate = async () => {
     if (!fUsername || !fPassword) { notify('warning', 'Missing', 'Username and password required'); return; }
     const tags = fRadiologist ? ['radiologist'] : [];
-    const res = await fetch('/api/admin/users', {
+    const res = await fetch(`${API}/admin/users`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username: fUsername, displayName: fDisplayName || fUsername, email: fEmail, password: fPassword, role: fRole, tags, facilityId: fFacilityId }),
     });
@@ -115,7 +116,7 @@ export default function AdminUsersPage() {
   const handleEdit = async () => {
     if (!editing) return;
     const tags = fRadiologist ? ['radiologist'] : [];
-    const res = await fetch(`/api/admin/users/${editing.id}`, {
+    const res = await fetch(`${API}/admin/users/${editing.id}`, {
       method: 'PUT', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ displayName: fDisplayName, email: fEmail, role: fRole, status: fStatus, tags, facilityId: fFacilityId }),
     });
@@ -125,7 +126,7 @@ export default function AdminUsersPage() {
 
   const handleResetPwd = async () => {
     if (!editing || !fPassword) { notify('warning', 'Missing', 'Enter a new password'); return; }
-    const res = await fetch(`/api/admin/users/${editing.id}/reset-password`, {
+    const res = await fetch(`${API}/admin/users/${editing.id}/reset-password`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ newPassword: fPassword }),
     });
@@ -135,13 +136,13 @@ export default function AdminUsersPage() {
 
   const handleDelete = async (u) => {
     if (!confirm(`Delete user "${u.username}"? This cannot be undone.`)) return;
-    const res = await fetch(`/api/admin/users/${u.id}`, { method: 'DELETE' });
+    const res = await fetch(`${API}/admin/users/${u.id}`, { method: 'DELETE' });
     if (res.ok) { notify('info', 'Deleted', `User ${u.username} deleted`); load(); }
     else { const e = await res.json(); notify('error', 'Error', e.error); }
   };
 
   const handleUnlock = async (u) => {
-    const res = await fetch(`/api/admin/users/${u.id}/unlock`, { method: 'POST' });
+    const res = await fetch(`${API}/admin/users/${u.id}/unlock`, { method: 'POST' });
     if (res.ok) { notify('success', 'Unlocked', `User ${u.username} unlocked`); load(); }
     else { const e = await res.json(); notify('error', 'Error', e.error); }
   };

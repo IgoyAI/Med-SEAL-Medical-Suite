@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { API } from '../api';
 import {
   Grid,
   Column,
@@ -88,17 +89,27 @@ export default function DashboardPage({ username, role, tags }) {
 
   const checkHealth = useCallback(async () => {
     try {
-      const res = await fetch('/api/system-status');
+      const res = await fetch(`${API}/system-status`);
       const data = await res.json();
       setStatuses(data);
     } catch {
-      // Fallback: show all as 'checking'
+      // Fallback: check each service healthUrl directly
+      const results = {};
+      for (const s of visibleServices) {
+        try {
+          await fetch(s.healthUrl, { mode: 'no-cors', cache: 'no-cache', signal: AbortSignal.timeout(3000) });
+          results[s.id] = 'up';
+        } catch {
+          results[s.id] = 'down';
+        }
+      }
+      if (Object.keys(results).length) setStatuses(results);
     }
-  }, []);
+  }, [visibleServices]);
 
   const loadAudit = useCallback(async () => {
     try {
-      const res = await fetch('/api/audit?limit=10');
+      const res = await fetch(`${API}/audit?limit=10`);
       if (res.ok) {
         const data = await res.json();
         setAuditRows(
